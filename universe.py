@@ -23,7 +23,7 @@ redisDB=0
 version="148"
 minVersion="146"
 PERIOD=5.0
-ENDPOINT="https://"+DOMAIN+".azurewebsites.net/"
+ENDPOINT="https://erdos.azurewebsites.net/"
 CODE="code="+ASKYOURS
 startTime=datetime.datetime.strptime("001d06h30m00s","%jd%Hh%Mm%Ss")
 SIGM=0.2
@@ -91,6 +91,93 @@ def scheduler(period,f,*args):
 def step():
   return True
 
+def distance(p0, p1):
+  if 'x' in p0:
+    return math.sqrt((p0['x'] - p1['x'])**2 + (p0['y'] - p1['y'])**2)
+  else:
+    return math.sqrt((p0['xly'] - p1['xly'])**2 + (p0['yly'] - p1['yly'])**2)   
+
+def sectorGen(x,y,seed):
+  verb='sectorGen'
+  url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+x+'&y='+y
+  print "URL="+url
+  rs=urllib2.urlopen(url)
+  r1=json.loads(rs.read())
+  return r1
+
+def discGen(x,y,su,radius,seed):
+  sectorwidth=9
+  found_su=False
+  su_ly={}
+  xx=(1+sectorwidth)*x
+  yy=(1+sectorwidth)*y
+  r1=sectorGen(x,y,seed)
+  for s in r1:
+    if (s['trig']==su):
+      found_su=True
+      su_ly['xly']=s['xly']
+      su_ly['yly']=s['yly']
+      break
+  r=[]
+  p0={}
+  p0['xly']=0.0
+  p0['yly']=0.0
+  if found_su==True:
+    print 'yo'
+    for s in r1:
+      if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+        s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
+        s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+        d=distance(s,p0)
+        if (d<=radius):
+          s['dist']=float("{0:.3f}".format(d))
+          r.append(s);
+    if ((su_ly['xly']-xx)>(sectorwidth-radius)):
+      print "extend x+1"
+      r2=sectorGen(x+1,y,seed)
+      for s in r2:
+        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          d=distance(s,p0)
+          if (d<=radius):
+            s['dist']=float("{0:.3f}".format(d))
+            r.append(s)
+    if ((su_ly['xly']-xx)<radius):
+      print "extend x-1"
+      r2=sectorGen(x-1,y,seed)  
+      for s in r2:
+        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          d=distance(s,p0)
+          if (d<=radius):
+            s['dist']=float("{0:.3f}".format(d))
+            r.append(s)
+    if ((su_ly['yly']-yy)>(sectorwidth-radius)):
+      print "extend y+1"  
+      r2=sectorGen(x,y+1,seed)
+      for s in r2:
+        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          d=distance(s,p0)
+          if (d<=radius):
+            s['dist']=float("{0:.3f}".format(d))
+            r.append(s)    
+    if ((su_ly['yly']-yy)<radius):
+      print "extend y-1"  
+      r2=sectorGen(x,y-1,seed) 
+      for s in r2:
+        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          d=distance(s,p0)
+          if (d<=radius):
+            s['dist']=float("{0:.3f}".format(d))
+            r.append(s)        
+  return r
+
 initAll()
 executor.submit(scheduler,PERIOD,step)
 if __name__=="__main__":
@@ -99,3 +186,4 @@ else:
   nop=''
 
 print "No more tasks to perform. Bye bye!"
+
