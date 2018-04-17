@@ -25,6 +25,9 @@ PERIOD=5.0
 ENDPOINT="https://erdos.azurewebsites.net"
 CODE="code="+ASKYOURS
 SIGM=0.2
+SHORTFREQ=1.0
+SHORTTHRESH=10.0
+SHORTBAN=5.0
 
 def aGauss():
   return random.gauss(0.0,SIGM)
@@ -34,7 +37,7 @@ app=flask.Flask(__name__)
 
 @app.route("/v1/list/sector/<p>/<x>/<y>", methods=["GET"])
 def v1getSector(x,y,p):
-  return json.dumps(sectorGen(x,y))
+  return json.dumps(sectorGen(x,y,p))
 
 @app.route("/v1/get/su/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1getSun(x,y,su,p):
@@ -155,12 +158,30 @@ def suGen(x,y,su):
     r1=json.loads(res)
   return r1
 
-def sectorGen(x,y):
+def throttle(p):
+  global controlPlane
+  thr=controlPlane.get(p+':isThrottled?')
+  if thr is not None:
+    return True
+  else:
+    controlPlane.incr(p+':shortCounter',1)
+    cnt=int(controlPlane.get(p+':shortCounter'))
+    if cnt>SHORTTHRESH:
+      controlPlane.set(p+':isThrottled?',True)
+      controlPlane.expire(p+':isThrottled?',SHORTBAN)
+      controlPlane.set(p+':shortCounter',0)
+      return True
+  return False
+
+def sectorGen(x,y,p):
   global dataPlane
+  global controlPlane
   cacheLocator=str(x)+':'+str(y)
   res=dataPlane.get(cacheLocator)
   if res is None:
     print 'MISS '+cacheLocator
+    if throttle(p):
+      return '[]'
     verb='sectorGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
 #  print "URL="+url
