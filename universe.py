@@ -33,9 +33,9 @@ PERIOD=5.0
 ENDPOINT="https://erdos.azurewebsites.net"
 CODE="code="+ASKYOURS
 SIGM=0.2
-SHORTFREQ=1.0
-SHORTTHRESH=10
-SHORTBAN=5
+SHORTFREQ=1 #seconds
+SHORTTHRESH=10  #hits
+SHORTBAN=5  #seconds
 
 def aGauss():
   return random.gauss(0.0,SIGM)
@@ -45,7 +45,8 @@ app=flask.Flask(__name__)
 
 @app.route("/v1/list/billing/<p>", methods=["GET"])
 def v1listBilling(p):
-  return json.dumps(listBilling(p))
+  global controlPlane
+  return json.dumps(controlPlane.smembers(p+':dots'),cls=setEncoder)
 
 @app.route("/v1/list/users", methods=["GET"])
 def v1listUsers():
@@ -122,11 +123,6 @@ def scheduler(period,f,*args):
     time.sleep(next(g))
     f(*args)
 
-def listBilling(p):
-  global controlPlane
-  ap=controlPlane.lrange(p+':dots',0,-1)
-  return ap
-
 def step():
   global stp
   global controlPlane
@@ -147,9 +143,8 @@ def billingDot(p,v,c):
   dot['t']=time.time()
   dot['verb']=v
   dot['result']=c
-  sdot=json.dumps(dot)
   controlPlane.sadd('users',p)
-  controlPlane.lpush(p+':dots',sdot)
+  controlPlane.sadd(p+':dots',dot)
 
 def suMap(x,y,su,p):
   global dataPlane
@@ -225,10 +220,12 @@ def throttle(p):
   else:
     controlPlane.incr(p+':shortCounter',1)
     cnt=int(controlPlane.get(p+':shortCounter'))
-    if cnt>SHORTTHRESH:
+    if cnt==1: #start SHORTFREQ timer
+      controlPlane.expire(p+':shortCounter',SHORTFREQ)
+    elif cnt>SHORTTHRESH:
       controlPlane.set(p+':isThrottled?',True)
-      controlPlane.expire(p+':isThrottled?',SHORTBAN)
-      controlPlane.set(p+':shortCounter',0)
+      controlPlane.expire(p+':isThrottled?',SHORTBAN*(cnt-SHORTTHRESH))
+      controlPlane.delete(p+':shortCounter')
       return True
   return False
 
