@@ -40,7 +40,7 @@ SHORTBAN=5  #seconds
 def aGauss():
   return random.gauss(0.0,SIGM)
 
-executor=ThreadPoolExecutor(max_workers=5)
+executor=ThreadPoolExecutor(max_workers=8)
 app=flask.Flask(__name__)
 
 @app.route("/v1/list/billing/<p>", methods=["GET"])
@@ -240,7 +240,7 @@ def sectorGen(x,y,p):
       return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='sectorGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
-#  print "URL="+url
+    print "URL="+url
     try:
       rs=urllib2.urlopen(url)
       rss=rs.read()
@@ -255,7 +255,58 @@ def sectorGen(x,y,p):
     r1=json.loads(res)
   return r1
 
+def R1sectorGen(x,y,p):
+  global r1
+  global r1done
+  r1=sectorGen(x,y,p)
+  r1done=True
+  return r1done
+
+def R2sectorGen(x,y,p):
+  global r2
+  global r2done
+  r2=sectorGen(x,y,p)
+  r2done=True
+  return r2done
+
+def R3sectorGen(x,y,p):
+  global r3
+  global r3done
+  r3=sectorGen(x,y,p)
+  r3done=True
+  return r3done
+
+def R4sectorGen(x,y,p):
+  global r4
+  global r4done
+  r4=sectorGen(x,y,p)
+  r4done=True
+  return r4done
+
+def R5sectorGen(x,y,p):
+  global r5
+  global r5done
+  r5=sectorGen(x,y,p)
+  r5done=True
+  return r5done
+
 def discGen(xs,ys,su,r,p):
+  global r1
+  global r2
+  global r3
+  global r4
+  global r5
+  global executor
+  global r1done
+  global r2done
+  global r3done
+  global r4done
+  global r5done
+  r1done=False
+  r2done=False
+  r3done=False
+  r4done=False
+  r5done=False
   seed=SEED
   sectorwidth=9
   radius=float(r)
@@ -269,7 +320,15 @@ def discGen(xs,ys,su,r,p):
   su_ly={}
   xx=float((1+sectorwidth)*x)
   yy=float((1+sectorwidth)*y)
-  r1=sectorGen(xi,yi)
+  executor.submit(R5sectorGen,xi,yi-1,p)
+  executor.submit(R2sectorGen,xi+1,yi,p)
+  executor.submit(R3sectorGen,xi-1,yi,p)
+  executor.submit(R4sectorGen,xi,yi+1,p)
+  R1sectorGen(xi,yi,p)
+  loopEnd=False
+  while loopEnd==False:
+    loopEnd=(r1done and r2done and r3done and r4done and r5done) 
+    time.sleep(0.3)
   for s in r1:
     if (s['trig']==su):
       found_su=True
@@ -291,7 +350,7 @@ def discGen(xs,ys,su,r,p):
           r.append(s);
     if ((su_ly['xly']-xx)>(float(sectorwidth)-radius)):
 #      print "extend x+1"
-      r2=sectorGen(xi+1,yi)
+#      r2=sectorGen(xi+1,yi)
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -302,8 +361,8 @@ def discGen(xs,ys,su,r,p):
             r.append(s)
     if ((su_ly['xly']-xx)<radius):
 #      print "extend x-1"
-      r2=sectorGen(xi-1,yi)  
-      for s in r2:
+#      r3=sectorGen(xi-1,yi)  
+      for s in r3:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
           s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
@@ -313,8 +372,8 @@ def discGen(xs,ys,su,r,p):
             r.append(s)
     if ((su_ly['yly']-yy)>(sectorwidth-radius)):
 #      print "extend y+1"  
-      r2=sectorGen(xi,yi+1)
-      for s in r2:
+#      r4=sectorGen(xi,yi+1)
+      for s in r4:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
           s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
@@ -324,8 +383,8 @@ def discGen(xs,ys,su,r,p):
             r.append(s)    
     if ((su_ly['yly']-yy)<radius):
 #      print "extend y-1"  
-      r2=sectorGen(xi,yi-1) 
-      for s in r2:
+#      r5=sectorGen(xi,yi-1) 
+      for s in r5:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
           s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
