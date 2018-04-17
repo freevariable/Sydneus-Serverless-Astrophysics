@@ -11,7 +11,8 @@ The code also manages caching, billing and throttling.
 
 ## Access key
 If you wish to use this galaxy generator, you will need an purchase an access key from **freevariable** to cover at least your **pay-per-use** usage of the serverless backend.
-As of now, the pricing is [aligned to Azure functions](https://azure.microsoft.com/en-us/pricing/details/functions/)
+
+As of now, *Universe* pricing is aligned with Azure functions: https://azure.microsoft.com/en-us/pricing/details/functions/
 
 ## API Documentation
 To be completed
