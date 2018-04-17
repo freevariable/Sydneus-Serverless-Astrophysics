@@ -52,7 +52,7 @@ except getopt.GetoptError as err:
   usage()
   sys.exit(2)
 
-portNum=4999
+portNum=14799
 for o, a in opts:
   if o in ("-h", "--help"):
     usage()
