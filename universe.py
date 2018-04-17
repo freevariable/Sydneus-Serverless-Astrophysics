@@ -19,13 +19,11 @@ from concurrent.futures import ThreadPoolExecutor
 import cPickle as pickle
 from localconf import *
 
-redisDB=0
-version="148"
-minVersion="146"
+dataPlaneId=6
+controlPlaneId=7
 PERIOD=5.0
-ENDPOINT="https://erdos.azurewebsites.net/"
+ENDPOINT="https://erdos.azurewebsites.net"
 CODE="code="+ASKYOURS
-startTime=datetime.datetime.strptime("001d06h30m00s","%jd%Hh%Mm%Ss")
 SIGM=0.2
 
 def aGauss():
@@ -39,14 +37,13 @@ def v1status():
   status={}
   return json.dumps(str(status))
 
-@app.route("/v1/get/sector/<x>/<y>/", methods=["GET"])
-def v1getSector(x,y):
-  verb='sectorGen'
-  url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+x+'&y='+y
-  print "URL="+url
-  rs=urllib2.urlopen(url)
-  sched=json.loads(rs.read())
-  return json.dumps(str(sched))
+@app.route("/v1/get/sector/<p>/<x>/<y>/", methods=["GET"])
+def v1getSector(x,y,p):
+  return json.dumps(sectorGen(x,y))
+
+@app.route("/v1/get/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
+def v1getDisc(x,y,su,r,p):
+  return json.dumps(discGen(x,y,su,r))
 
 try:
   opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "port="])
@@ -67,11 +64,19 @@ for o, a in opts:
     sys.exit(2)
 
 def initAll():
-  global r
-  global redisDB
-  r=redis.StrictRedis(host='localhost', port=6379, db=redisDB)
+  global controlPlane
+  global controlPlaneId
+  global dataPlane
+  global dataPlaneId
+  controlPlane=redis.StrictRedis(host='localhost', port=6379, db=controlPlaneId)
   try:
-    answ=r.client_list()
+    answ=controlPlane.client_list()
+  except redis.ConnectionError:
+    print "FATAL: cannot connect to redis."
+    sys.exit()
+  dataPlane=redis.StrictRedis(host='localhost', port=6379, db=dataPlaneId)
+  try:
+    answ=dataPlane.client_list()
   except redis.ConnectionError:
     print "FATAL: cannot connect to redis."
     sys.exit()
@@ -97,33 +102,50 @@ def distance(p0, p1):
   else:
     return math.sqrt((p0['xly'] - p1['xly'])**2 + (p0['yly'] - p1['yly'])**2)   
 
-def sectorGen(x,y,seed):
-  verb='sectorGen'
-  url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+x+'&y='+y
-  print "URL="+url
-  rs=urllib2.urlopen(url)
-  r1=json.loads(rs.read())
+def sectorGen(x,y):
+  global dataPlane
+  cacheLocator=str(x)+':'+str(y)
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+    print 'MISS '+cacheLocator
+    verb='sectorGen'
+    url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
+#  print "URL="+url
+    rs=urllib2.urlopen(url)
+    rss=rs.read()
+    r1=json.loads(rss)
+    dataPlane.set(cacheLocator,rss)
+  else:
+    print 'HIT '+cacheLocator
+    r1=json.loads(res)
   return r1
 
-def discGen(x,y,su,radius,seed):
+def discGen(xs,ys,su,r):
+  seed=SEED
   sectorwidth=9
+  radius=float(r)
+  x=float(xs)
+  y=float(ys)
+  xi=int(x)
+  yi=int(y)
+  if radius>float(sectorwidth):
+    return '[]'
   found_su=False
   su_ly={}
-  xx=(1+sectorwidth)*x
-  yy=(1+sectorwidth)*y
-  r1=sectorGen(x,y,seed)
+  xx=float((1+sectorwidth)*x)
+  yy=float((1+sectorwidth)*y)
+  r1=sectorGen(xi,yi)
   for s in r1:
     if (s['trig']==su):
       found_su=True
-      su_ly['xly']=s['xly']
-      su_ly['yly']=s['yly']
+      su_ly['xly']=float(s['xly'])
+      su_ly['yly']=float(s['yly'])
       break
   r=[]
   p0={}
   p0['xly']=0.0
   p0['yly']=0.0
   if found_su==True:
-    print 'yo'
     for s in r1:
       if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
         s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -132,9 +154,9 @@ def discGen(x,y,su,radius,seed):
         if (d<=radius):
           s['dist']=float("{0:.3f}".format(d))
           r.append(s);
-    if ((su_ly['xly']-xx)>(sectorwidth-radius)):
-      print "extend x+1"
-      r2=sectorGen(x+1,y,seed)
+    if ((su_ly['xly']-xx)>(float(sectorwidth)-radius)):
+#      print "extend x+1"
+      r2=sectorGen(xi+1,yi)
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -144,8 +166,8 @@ def discGen(x,y,su,radius,seed):
             s['dist']=float("{0:.3f}".format(d))
             r.append(s)
     if ((su_ly['xly']-xx)<radius):
-      print "extend x-1"
-      r2=sectorGen(x-1,y,seed)  
+#      print "extend x-1"
+      r2=sectorGen(xi-1,yi)  
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -155,8 +177,8 @@ def discGen(x,y,su,radius,seed):
             s['dist']=float("{0:.3f}".format(d))
             r.append(s)
     if ((su_ly['yly']-yy)>(sectorwidth-radius)):
-      print "extend y+1"  
-      r2=sectorGen(x,y+1,seed)
+#      print "extend y+1"  
+      r2=sectorGen(xi,yi+1)
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -166,8 +188,8 @@ def discGen(x,y,su,radius,seed):
             s['dist']=float("{0:.3f}".format(d))
             r.append(s)    
     if ((su_ly['yly']-yy)<radius):
-      print "extend y-1"  
-      r2=sectorGen(x,y-1,seed) 
+#      print "extend y-1"  
+      r2=sectorGen(xi,yi-1) 
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
@@ -176,6 +198,8 @@ def discGen(x,y,su,radius,seed):
           if (d<=radius):
             s['dist']=float("{0:.3f}".format(d))
             r.append(s)        
+  else:  #not found
+    return '[]'
   return r
 
 initAll()
