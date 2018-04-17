@@ -15,10 +15,18 @@
 
 import redis,random,math,sys,uuid,urllib2
 import time,datetime,getopt,flask,json
+from flask_api import status
 from concurrent.futures import ThreadPoolExecutor
 import cPickle as pickle
 from localconf import *
 
+class setEncoder(json.JSONEncoder):
+  def default(self,obj):
+    if isinstance(obj,set):
+      return list(obj)
+    return json.JSONEncoder.default(self,obj)
+
+stp=0
 dataPlaneId=6
 controlPlaneId=7
 PERIOD=5.0
@@ -26,8 +34,8 @@ ENDPOINT="https://erdos.azurewebsites.net"
 CODE="code="+ASKYOURS
 SIGM=0.2
 SHORTFREQ=1.0
-SHORTTHRESH=10.0
-SHORTBAN=5.0
+SHORTTHRESH=10
+SHORTBAN=5
 
 def aGauss():
   return random.gauss(0.0,SIGM)
@@ -35,25 +43,34 @@ def aGauss():
 executor=ThreadPoolExecutor(max_workers=5)
 app=flask.Flask(__name__)
 
+@app.route("/v1/list/billing/<p>", methods=["GET"])
+def v1listBilling(p):
+  return json.dumps(listBilling(p))
+
+@app.route("/v1/list/users", methods=["GET"])
+def v1listUsers():
+  global controlPlane
+  return json.dumps(controlPlane.smembers('users'),cls=setEncoder)
+
 @app.route("/v1/list/sector/<p>/<x>/<y>", methods=["GET"])
 def v1getSector(x,y,p):
   return json.dumps(sectorGen(x,y,p))
 
 @app.route("/v1/get/su/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1getSun(x,y,su,p):
-  return json.dumps(suGen(x,y,su))
+  return json.dumps(suGen(x,y,su,p))
 
 @app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPl(x,y,su,pl,p):
-  return json.dumps(plGen(x,y,su,pl))
+  return json.dumps(plGen(x,y,su,pl,p))
 
 @app.route("/v1/map/su/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1listPl(x,y,su,p):
-  return json.dumps(suMap(x,y,su))
+  return json.dumps(suMap(x,y,su,p))
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):
-  return json.dumps(discGen(x,y,su,r))
+  return json.dumps(discGen(x,y,su,r,p))
 
 try:
   opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "port="])
@@ -90,6 +107,8 @@ def initAll():
   except redis.ConnectionError:
     print "FATAL: cannot connect to redis."
     sys.exit()
+  controlPlane.flushdb()
+  dataPlane.flushdb()
 
 def scheduler(period,f,*args):
   def g_tick():
@@ -103,7 +122,17 @@ def scheduler(period,f,*args):
     time.sleep(next(g))
     f(*args)
 
+def listBilling(p):
+  global controlPlane
+  ap=controlPlane.lrange(p+':dots',0,-1)
+  return ap
+
 def step():
+  global stp
+  global controlPlane
+  stp=stp+1
+  if (stp%600==0):
+    nop=''
   return True
 
 def distance(p0, p1):
@@ -112,49 +141,79 @@ def distance(p0, p1):
   else:
     return math.sqrt((p0['xly'] - p1['xly'])**2 + (p0['yly'] - p1['yly'])**2)   
 
-def suMap(x,y,su):
+def billingDot(p,v,c):
+  global controlPlane
+  dot={}
+  dot['t']=time.time()
+  dot['verb']=v
+  dot['result']=c
+  sdot=json.dumps(dot)
+  controlPlane.sadd('users',p)
+  controlPlane.lpush(p+':dots',sdot)
+
+def suMap(x,y,su,p):
   global dataPlane
+  if throttle(p):
+    return status.HTTP_503_SERVICE_UNAVAILABLE
   verb='plMap'
   url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
   print "URL="+url
-  rs=urllib2.urlopen(url)
-  rss=rs.read()
-  r1=json.loads(rss)
-  return r1
+  try:
+    rs=urllib2.urlopen(url)
+    rss=rs.read()
+    r1=json.loads(rss)
+    billingDot(p,verb,rs.getcode())
+    return r1
+  except urllib2.HTTPError, e:
+    return status  
 
-def plGen(x,y,su,pl):
+def plGen(x,y,su,pl,p):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
   res=dataPlane.get(cacheLocator)
   if res is None:
     print 'MISS '+cacheLocator
+    if throttle(p):
+      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='plGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&seed='+SEED
     print "URL="+url
-    rs=urllib2.urlopen(url)
-    rss=rs.read()
-    r1=json.loads(rss)
-    dataPlane.set(cacheLocator,rss)
+    try:
+      rs=urllib2.urlopen(url)
+      rss=rs.read()
+      r1=json.loads(rss)
+      dataPlane.set(cacheLocator,rss)
+      billingDot(p,verb,rs.getcode())
+      return r1
+    except urllib2.HTTPError, e:
+      return status  
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
   return r1
 
-def suGen(x,y,su):
+def suGen(x,y,su,p):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
   if res is None:
 #    print 'MISS '+cacheLocator
+    if throttle(p):
+      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='suGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
 #    print "URL="+url
-    rs=urllib2.urlopen(url)
-    rss=rs.read()
-    r1=json.loads(rss)
-    dataPlane.set(cacheLocator,rss)
+    try:
+      rs=urllib2.urlopen(url)
+      rss=rs.read()
+      r1=json.loads(rss)
+      dataPlane.set(cacheLocator,rss)
+      billingDot(p,verb,rs.getcode())
+      return r1
+    except urllib2.HTTPError, e:
+      return status  
   else:
-#    print 'HIT '+cacheLocator
+    print 'HIT '+cacheLocator
     r1=json.loads(res)
   return r1
 
@@ -181,20 +240,25 @@ def sectorGen(x,y,p):
   if res is None:
     print 'MISS '+cacheLocator
     if throttle(p):
-      return '[]'
+      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='sectorGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
 #  print "URL="+url
-    rs=urllib2.urlopen(url)
-    rss=rs.read()
-    r1=json.loads(rss)
-    dataPlane.set(cacheLocator,rss)
+    try:
+      rs=urllib2.urlopen(url)
+      rss=rs.read()
+      r1=json.loads(rss)
+      dataPlane.set(cacheLocator,rss)
+      billingDot(p,verb,rs.getcode())
+      return r1
+    except urllib2.HTTPError, e:
+      return status  
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
   return r1
 
-def discGen(xs,ys,su,r):
+def discGen(xs,ys,su,r,p):
   seed=SEED
   sectorwidth=9
   radius=float(r)

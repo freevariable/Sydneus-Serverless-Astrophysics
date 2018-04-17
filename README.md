@@ -16,7 +16,7 @@ As explained above, this code provides a front-end REST API to the back-end serv
 ### Installation (Ubuntu)
 sudo apt-get update
 
-sudo apt-get install -y redis-server python curl python-redis
+sudo apt-get install -y redis-server python curl python-redis python-flask python-flask-api
 
 Then: clone **Universe** from GitHub and... voila!
 
