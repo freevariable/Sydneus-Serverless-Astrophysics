@@ -68,15 +68,23 @@ curl 'http://127.0.0.1:14799/v1/list/sector/player4067/400/29'
 ### sun
 Example:
 ```
-curl 'http://127.0.0.1:14799/v1/get/sy/player4067/400/29/RWh'
+curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
 
 {"perStr": 5.705832, "trig": "RWh", "m": 2.0512166010113e+30, "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "id": "quadrant:400:29:RWh", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
+```
+
+### real time planetary system map
+Example:
+```
+curl 'http://127.0.0.1:14799/v1/map/su/a/400/29/RWh'
+
+[{"smaAU": 1.478868287777208, "smiAU": 1.4784174519337556, "ano": 3.844677553211314, "period": 55880562.18270369, "per": 3.902947712776953, "revol": 0.09075012880266921, "prettyRevol": "2h10m40s", "epoch": 640352988.859, "rho": 10.0, "prettyPeriod": "1y281d", "progress": "0.93%", "order": 1, "id": "400:29:quadrant:400:29:RWh:1", "cls": "E"}, {"smaAU": 1.6885807858803, "smiAU": 1.6857467288938752, "ano": 0.705111786607528, "period": 68178789.6511691, "per": 3.924651761499844, "revol": 0.05957265940113938, "prettyRevol": "1h25m47s", "epoch": 640352988.859, "rho": 300.0, "prettyPeriod": "2y59d", "progress": "51.24%", "order": 2, "id": "400:29:quadrant:400:29:RWh:2", "cls": "E"}]
 ```
 
 ### planet
 Example:
 ```
-curl 'http://127.0.0.1:14799/v1/get/sy/player4067/400/29/RWh/1'
+curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1'
 
 {"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "longTerraFactor": 1.8987, "revol": 0.09075012880266921, "cycleSpeed": 0.4416999237239964, "id": "400:29:quadrant:400:29:RWh:1", "longTerraAmplifier": 1.0, "maxLvl": 509, "perStr": 4.812696000000001, "shortTerraFactor": 0.578484, "per": 3.902947712776953, "dayProgressAtEpoch": 0.2056876, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "shortTerraAmplifier": 1.09, "g": 1.873998154697319, "m": 6.212869855126415e+22, "cat": 17, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
 ```

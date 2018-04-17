@@ -36,13 +36,17 @@ app=flask.Flask(__name__)
 def v1getSector(x,y,p):
   return json.dumps(sectorGen(x,y))
 
-@app.route("/v1/get/sy/<p>/<x>/<y>/<su>", methods=["GET"])
-def v1getSys(x,y,su,p):
-  return json.dumps(sysGen(x,y,su))
+@app.route("/v1/get/su/<p>/<x>/<y>/<su>", methods=["GET"])
+def v1getSun(x,y,su,p):
+  return json.dumps(suGen(x,y,su))
 
 @app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPl(x,y,su,pl,p):
   return json.dumps(plGen(x,y,su,pl))
+
+@app.route("/v1/map/su/<p>/<x>/<y>/<su>", methods=["GET"])
+def v1listPl(x,y,su,p):
+  return json.dumps(suMap(x,y,su))
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):
@@ -105,6 +109,16 @@ def distance(p0, p1):
   else:
     return math.sqrt((p0['xly'] - p1['xly'])**2 + (p0['yly'] - p1['yly'])**2)   
 
+def suMap(x,y,su):
+  global dataPlane
+  verb='plMap'
+  url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
+  print "URL="+url
+  rs=urllib2.urlopen(url)
+  rss=rs.read()
+  r1=json.loads(rss)
+  return r1
+
 def plGen(x,y,su,pl):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
@@ -123,13 +137,13 @@ def plGen(x,y,su,pl):
     r1=json.loads(res)
   return r1
 
-def sysGen(x,y,su):
+def suGen(x,y,su):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
   if res is None:
 #    print 'MISS '+cacheLocator
-    verb='sysGen'
+    verb='suGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
 #    print "URL="+url
     rs=urllib2.urlopen(url)
