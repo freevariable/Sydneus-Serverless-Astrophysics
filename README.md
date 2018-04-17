@@ -1,13 +1,16 @@
 # Universe
 *Universe* makes tens to hundreds billion of procedurally generated suns, planets and moons in a virtually unlimited number of persistent galaxies.
 
+The purpose of this code is first and foremost to optimize the number and length of calls (hence the costs) you make to our serverless back-end, then to provide features like JSON-formatting, per-user throttling and per-user billing (if you have paying customers).
+
 - Celestial bodies are generated as much as possible according to latest astronomical discoveries. The main gap lies in the lack of n-ary systems.
 - Provides physical characteristics, orbital parameters and rotation (spin) parameters
 - Calculates the **real-time state vector** of each planet and each moon
 - Galaxies are generated in 2D (meaning that a celestial body's state vector has no *inclination*, and that its rotation and revolution axis are always vertical to the galactic plane)
+- Results are cached in Redis 
+- Some long running tasks can be shortened with **proof of work** (PoW)
 
-This code provides a front-end REST API to the back-end serverless generator, locared in *Azure function* and *Amazon lambda*.
-The code also manages caching, billing and throttling.
+As explained above, this code provides a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
 
 ## Getting started
 ### Installation
@@ -34,7 +37,6 @@ By default, the server will start on localhost port 14799. You can set the port 
 
 ### Get your own key!
 If you wish to use our generator, you will need to purchase an access key from **freevariable** to cover at least your *pay-per-use* usage of our serverless backend.
-Pricing starts from a few dollars/month if you anticipate no more that a few calls per minute. Feel free to contact us for an estimate.
 
 ## Design
 ### Bodies locator
