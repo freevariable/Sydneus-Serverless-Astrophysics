@@ -199,9 +199,17 @@ def v1getSector(x,y,p):
 def v1getSun(x,y,su,p):
   return json.dumps(suGen(x,y,su,p))
 
+@app.route("/v1/get/su/<p>/<x>/<y>/<su>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
+def v1getSunWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
+  return json.dumps(suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p))
+
 @app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPl(x,y,su,pl,p):
   return json.dumps(plGen(x,y,su,pl,p))
+
+@app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
+def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
+  return json.dumps(plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p))
 
 @app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPlElements(x,y,su,pl,p):
@@ -310,6 +318,31 @@ def suMap(x,y,su,p):
   except urllib2.HTTPError, e:
     return status  
 
+def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
+  global dataPlane
+  cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+    print 'MISS '+cacheLocator
+    if throttle(p):
+      return status.HTTP_503_SERVICE_UNAVAILABLE
+    verb='plGenWithPoW'
+    url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof+'&seed='+SEED
+    print "URL="+url
+    try:
+      rs=urllib2.urlopen(url)
+      rss=rs.read()
+      r1=json.loads(rss)
+      dataPlane.set(cacheLocator,rss)
+      billingDot(p,verb,rs.getcode())
+      return r1
+    except urllib2.HTTPError, e:
+      return status  
+  else:
+    print 'HIT '+cacheLocator
+    r1=json.loads(res)
+  return r1
+
 def plGen(x,y,su,pl,p):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
@@ -321,6 +354,31 @@ def plGen(x,y,su,pl,p):
     verb='plGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&seed='+SEED
     print "URL="+url
+    try:
+      rs=urllib2.urlopen(url)
+      rss=rs.read()
+      r1=json.loads(rss)
+      dataPlane.set(cacheLocator,rss)
+      billingDot(p,verb,rs.getcode())
+      return r1
+    except urllib2.HTTPError, e:
+      return status  
+  else:
+    print 'HIT '+cacheLocator
+    r1=json.loads(res)
+  return r1
+
+def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
+  global dataPlane
+  cacheLocator=str(x)+':'+str(y)+':'+su
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+#    print 'MISS '+cacheLocator
+    if throttle(p):
+      return status.HTTP_503_SERVICE_UNAVAILABLE
+    verb='suGenWithPoW'
+    url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof
+#    print "URL="+url
     try:
       rs=urllib2.urlopen(url)
       rss=rs.read()

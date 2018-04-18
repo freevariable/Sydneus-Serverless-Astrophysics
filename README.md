@@ -12,6 +12,12 @@ The purpose of this code is first and foremost to optimize the number and length
 
 As explained above, this code provides a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
 
+What it will NOT do for you:
+- Authenticate your users
+- Authorize access for your users (can user X see sun Y if he has not visited it yet ?)
+- Provide a GUI
+- Persist data in storage (filesystem, database)
+
 ## Getting started
 ### Installation (Ubuntu)
 sudo apt-get update
@@ -54,10 +60,13 @@ Notes:
 
 ### Orbital parameters
 
-### State vectors and spin
+### State vectors, spin, time of the day
 
 ## API Documentation
-We have three sets of APIs: procedural generation, realtime elements and management.
+We have three sets of APIs: procedural generation, realtime elements and management interface.
+- Procedural generation is fully cacheable. It is cached in a redis DB called dataPlane.
+- Realtime elements are not cached. They are interpolated from procedural generation items.
+- Management data are cached in a redis DB called controlPlane.
 
 ### Procedural generation
 #### Discs
@@ -70,11 +79,22 @@ curl 'http://127.0.0.1:14799/v1/list/disc/player4067/400/29/jmj/3.4'
 #### Suns (without Proof of Work)
 
 Example: generate the physical characteristics of sun RWh in sector 400:29 (on behalf of player4067). Here, we see that this sun has two planets in orbit.
+Also notice the proof of work that we may reuse later one.
 
 ```
 curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
 
-{"perStr": 5.705832, "trig": "RWh", "m": 2.0512166010113e+30, "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "id": "quadrant:400:29:RWh", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
+{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "m": 2.0512166010113e+30, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "id": "quadrant:400:29:RWh", "cls": 3, "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "revol": 1254697.8796800002}
+```
+
+#### Suns (with Proof of Work)
+
+Example: same as above, but reusing the proof of work and parameters that we got above in a previous call.
+
+```
+curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
+
+{"perStr": 5.705832, "trig": "RWh", "m": 2.0512166010113e+30, "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "id": "quadrant:400:29:RWh", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
 ```
 
 #### Planets (without Proof of Work)
@@ -83,6 +103,15 @@ Example: generate the physical characteristics of the first planet orbiting sun 
 
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1'
+
+{"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "m": 6.212869855126415e+22, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
+```
+
+#### Planets (with Proof of Work)
+
+Example: Same as above, but this time reusing the PoW and some procedurally generated items obtained above during sun generation.
+```
+curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
 {"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "m": 6.212869855126415e+22, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
 ```
