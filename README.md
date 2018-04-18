@@ -1,5 +1,4 @@
-# Universe
-*Universe* makes tens to hundreds billion of procedurally generated suns, planets and moons in a virtually unlimited number of persistent galaxies.
+*Sydneus* makes tens to hundreds billion of procedurally generated suns, planets and moons in a virtually unlimited number of persistent galaxies.
 
 The purpose of this code is first and foremost to optimize the number and length of calls (hence the costs) you make to our serverless back-end, then to provide features like JSON-formatting, per-user throttling and per-user billing (if you have paying customers).
 
@@ -24,7 +23,7 @@ sudo apt-get update
 
 sudo apt-get install -y redis-server python curl python-redis python-flask python-flask-api
 
-Then: clone **Universe** from GitHub and... voila!
+Then: clone **Sydneus** from GitHub and... voila!
 
 ### Configuration
 In your local clone directory, you need to create a file called localconf.py containing the following:
