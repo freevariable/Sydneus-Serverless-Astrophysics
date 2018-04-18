@@ -57,7 +57,7 @@ Notes:
 ### State vectors and spin
 
 ## API Documentation
-We have three sets of APIs: procedural generation, cartography and management.
+We have three sets of APIs: procedural generation, realtime elements and management.
 
 ### Procedural generation
 #### Discs
@@ -68,9 +68,8 @@ curl 'http://127.0.0.1:14799/v1/list/disc/player4067/400/29/jmj/3.4'
 ```
 
 #### Suns (without Proof of Work)
-Calls to this endpoint are fully and safely cacheable.
 
-Example:
+Example: generate the physical characteristics of sun RWh in sector 400:29 (on behalf of player4067). Here, we see that this sun has two planets in orbit.
 
 ```
 curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
@@ -79,31 +78,43 @@ curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
 ```
 
 #### Planets (without Proof of Work)
-The **mean anomaly** parameter is not cacheable, you should interpolate it between two calls.
 
-Example:
+Example: generate the physical characteristics of the first planet orbiting sun RWh. We can see that this planet is in the habitable zone, what's more it has an atmosphere but its gravity is nearly twice as much as earth.
+
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1'
 
-{"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "longTerraFactor": 1.8987, "revol": 0.09075012880266921, "cycleSpeed": 0.4416999237239964, "id": "400:29:quadrant:400:29:RWh:1", "longTerraAmplifier": 1.0, "maxLvl": 509, "perStr": 4.812696000000001, "shortTerraFactor": 0.578484, "per": 3.902947712776953, "dayProgressAtEpoch": 0.2056876, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "shortTerraAmplifier": 1.09, "g": 1.873998154697319, "m": 6.212869855126415e+22, "cat": 17, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
+{"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "m": 6.212869855126415e+22, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
 ```
 
 #### Moons (without Proof of Work)
-The **mean anomaly** parameter is not cacheable, you should interpolate it between two calls.
 
 To be completed.
 
-### Cartography API
-You should be aware that calls to this API are not cacheable.
-#### Real time logarithmic solar system map
-Example:
+### Realtime elements API
+Calls to this API are cacheable: all dynamic attributes are updated seamlessly.
+#### Real time logarithmic planetary system map
+Example: dump RWh system map.
 ```
 curl 'http://127.0.0.1:14799/v1/map/su/player4067/400/29/RWh'
-
-[{"smaAU": 1.478868287777208, "smiAU": 1.4784174519337556, "ano": 3.844677553211314, "period": 55880562.18270369, "per": 3.902947712776953, "revol": 0.09075012880266921, "prettyRevol": "2h10m40s", "epoch": 640352988.859, "rho": 10.0, "prettyPeriod": "1y281d", "progress": "0.93%", "order": 1, "id": "400:29:quadrant:400:29:RWh:1", "cls": "E"}, {"smaAU": 1.6885807858803, "smiAU": 1.6857467288938752, "ano": 0.705111786607528, "period": 68178789.6511691, "per": 3.924651761499844, "revol": 0.05957265940113938, "prettyRevol": "1h25m47s", "epoch": 640352988.859, "rho": 300.0, "prettyPeriod": "2y59d", "progress": "51.24%", "order": 2, "id": "400:29:quadrant:400:29:RWh:2", "cls": "E"}]
+[{"revolFormatted": "2h10m40s", "rad": 1487500.9533006737, "mEA": 0.010402687467665962, "radEA": 0.23322007389358487, "hasAtm": false, "m": 6.212869855126415e+22, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "span": 10.0, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "smi": 221168103.25853467, "progress": "22.95%", "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "toPer": "1y133d", "meanAno": 3.8546203774678833, "rho": 225426015.31859565, "theta": 2.46087674772146, "localTime": 5576.811487534919, "g": 1.873998154697319, "fromPer": "148d10h", "dayProgress": 0.7112544092827545, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "localTimeFormatted": "1h32m56s", "periodFormatted": "1y281d", "order": 1}, {"revolFormatted": "1h25m47s", "rad": 3795536.541663314, "mEA": 0.32225345578878817, "radEA": 0.59508890447991, "hasAtm": false, "m": 1.9246168717492847e+24, "smiAU": 1.6857467288938752, "ano": 4.52364837694262, "period": 68178789.6511691, "revol": 0.05957265940113938, "dayProgressAtEpoch": 0.26428897, "span": 300.0, "perStr": 4.596186, "per": 3.924651761499844, "isLocked": false, "smi": 252184121.6877379, "progress": "49.85%", "inHZ": true, "sma": 252608090.57919973, "cls": "E", "ecc": 0.057913000000000006, "denEA": 1.5236689999999997, "toPer": "1y30d", "meanAno": 0.713261104417672, "rho": 241923965.38768595, "theta": 0.7924442628839685, "localTime": 2184.3056773722506, "g": 8.9163958854062, "fromPer": "1y28d", "dayProgress": 0.4243778264134948, "smaAU": 1.6885807858803, "isIrr": false, "den": 8403.034534999999, "localTimeFormatted": "36m24s", "periodFormatted": "2y59d", "order": 2}]
 ```
 
+#### Real time orbital elements of a planet
+Example: get orbital elements (and physical characteristics) of planet 1.
+```
+curl 'http://127.0.0.1:14799/v1/get/pl/elements/player4067/400/29/RWh/1'
+{"revolFormatted": "2h10m40s", "rad": 1487500.9533006737, "mEA": 0.010402687467665962, "radEA": 0.23322007389358487, "hasAtm": true, "m": 6.212869855126415e+22, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "progress": "22.95%", "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "toPer": "1y133d", "meanAno": 3.8546507020276994, "rho": 225426015.31859565, "theta": 2.46087674772146, "localTime": 5846.508045580361, "g": 1.873998154697319, "fromPer": "148d10h", "dayProgress": 0.7456509217894006, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "localTimeFormatted": "1h37m26s", "periodFormatted": "1y281d", "order": 1}
+```
 ### Management API
-#### Users
-
-#### Billing
+#### List users
+Example: list all users which have been billed so far.
+```
+curl 'http://127.0.0.1:14799/v1/list/users'
+```
+#### Show detailed service consumption 
+Example: show all billing dots for user player4067
+```
+curl 'http://127.0.0.1:14799/v1/list/billing/player4067'
+["{'verb': 'plGen', 't': 1524054485.730217, 'result': 200}", "{'verb': 'plMap', 't': 1524054216.033575, 'result': 200}"]
+```

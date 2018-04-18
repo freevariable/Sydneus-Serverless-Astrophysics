@@ -36,9 +36,147 @@ SIGM=0.2
 SHORTFREQ=1 #seconds
 SHORTTHRESH=10  #hits
 SHORTBAN=5  #seconds
+TWOPI=6.28318530718
 
 def aGauss():
   return random.gauss(0.0,SIGM)
+
+def ff(f):
+  return "%.2f" % f
+
+def prettyDelta(t1,t2):
+  delta=int(t2-t1)
+  zeroing=False
+  ignoredays=False
+  ignoresubdays=False
+  ignoreminutes=False
+  ignoreseconds=False
+  p={}
+  y=int(delta/31536000)
+  if (y>0):
+    p['y']=y
+    ignoresubdays=True
+    if (y>900):
+      ignoredays=True
+  else:
+    zeroing=True
+  if (ignoredays):
+    return p
+  aux=delta-y*31536000
+  d=int(aux/86400)
+  if (d>0):
+    p['d']=d
+    zeroing=False
+    ignoreseconds=True
+    if (d>30):
+      ignoreminutes=True
+  else:
+    if (zeroing==False):
+      p['d']=d
+  if (ignoresubdays):
+    return p
+  aux=aux-d*86400
+  h=int(aux/3600)
+  if (h>0):
+    p['h']=h
+    zeroing=False
+  else:
+    if (zeroing==False):
+      p['h']=h
+  if (ignoreminutes):
+    return p
+  aux=aux-h*3600
+  m=int(aux/60)
+  if (m>0):
+    p['m']=m
+  else:
+    if (zeroing==False):
+      p['m']=m
+  if (ignoreseconds):
+    return p
+  p['s']=aux-m*60
+  return p
+
+def prettyDeltaCompact(t1,t2):
+  p=prettyDelta(t1,t2)
+  pdc=''
+  if ('y' in p):
+    pdc=pdc+str(p['y'])+'y'
+  if ('d' in p):
+    pdc=pdc+str(p['d'])+'d'
+  if ('h' in p):
+    pdc=pdc+str(p['h'])+'h'
+  if ('m' in p):
+    pdc=pdc+str(p['m'])+'m'
+  if ('s' in p):
+    pdc=pdc+str(p['s'])+'s'
+  return pdc        
+
+def getEccAno(ano,ecc):
+  exitCondition=False
+  eccAno=0.0
+  while exitCondition==False:
+    aux=eccAno-ecc*math.sin(eccAno)
+    if (abs(aux-ano)<0.001):
+      exitCondition=True  
+      print "aux:"+str(aux)
+      print "ano:"+str(ano)
+      print "eccAno:"+str(eccAno)
+    if (eccAno>TWOPI):
+      exitCondition=True
+      eccAno=-100.0
+    if exitCondition==False:
+      eccAno=eccAno+0.001
+  return eccAno
+
+def getTheta(eccAno,ecc):
+  aux=(1+ecc)*math.tan(eccAno/2.0)*math.tan(eccAno/2.0)/(1-ecc)
+  aux=math.sqrt(aux)
+  trueAno=2.0*math.atan(aux)
+#  print trueAno
+  return trueAno
+
+def getRho(sma,ecc,eccAno):
+  return sma*(1.0-ecc*math.cos(eccAno)) 
+
+def elements(p,detailed):
+  t=time.time()-883612799.0
+  epoch=0.0
+  deltat=t-epoch
+  deltap=deltat/p['period']
+  deltar=deltat/(p['revol']*86400.0)
+  deltaa=TWOPI*deltap
+  deltab=deltar-math.floor(deltar)
+  print "DELTAR "+str(deltar)
+  print "DELTAB "+str(deltab)
+  e={}
+  e['dayProgress']=p['dayProgressAtEpoch']+deltab
+  if e['dayProgress']>1.0:
+    e['dayProgress']=e['dayProgress']-1.0
+  e['localTime']=e['dayProgress']*p['revol']*86400.0
+  e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
+  e['meanAno']=(p['ano']+deltaa)%TWOPI
+  eccAno=getEccAno(e['meanAno'],p['ecc'])
+  e['rho']=getRho(p['sma'],p['ecc'],eccAno)
+  e['theta']=getTheta(eccAno,p['ecc'])
+  if (e['theta']>p['per']):
+    progress=e['theta']-p['per']
+  else:
+    progress=p['per']-e['theta']
+  timeToPer=p['period']*(TWOPI-progress)/TWOPI
+  timeFromPer=p['period']*progress/TWOPI
+  dateTimeToPer=prettyDeltaCompact(0.0,timeToPer)
+  dateTimeFromPer=prettyDeltaCompact(0.0,timeFromPer)
+  e['progress']=str(ff(100*progress/TWOPI))+'%'
+  e['toPer']=dateTimeToPer
+  e['fromPer']=dateTimeFromPer
+  if detailed:
+    e['periodFormatted']=prettyDeltaCompact(0.0,p['period'])
+    e['revolFormatted']=prettyDeltaCompact(0.0,abs(p['revol']*86400.0))
+    if p['revol']<0.0:
+      e['revolFormatted']='-'+e['revolFormatted']
+    e.update(p)
+  return e
 
 executor=ThreadPoolExecutor(max_workers=8)
 app=flask.Flask(__name__)
@@ -46,7 +184,7 @@ app=flask.Flask(__name__)
 @app.route("/v1/list/billing/<p>", methods=["GET"])
 def v1listBilling(p):
   global controlPlane
-  return json.dumps(controlPlane.smembers(p+':dots'),cls=setEncoder)
+  return json.dumps(controlPlane.lrange(p+':dots',0,-1))
 
 @app.route("/v1/list/users", methods=["GET"])
 def v1listUsers():
@@ -65,9 +203,19 @@ def v1getSun(x,y,su,p):
 def v1getPl(x,y,su,pl,p):
   return json.dumps(plGen(x,y,su,pl,p))
 
+@app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
+def v1getPlElements(x,y,su,pl,p):
+  ap=plGen(x,y,su,pl,p)
+  return json.dumps(elements(ap,True))
+
 @app.route("/v1/map/su/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1listPl(x,y,su,p):
-  return json.dumps(suMap(x,y,su,p))
+  pls=suMap(x,y,su,p)
+  l=[]
+  for ap in pls:
+    e=elements(ap,True) 
+    l.append(e)
+  return json.dumps(l)
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):
@@ -144,7 +292,7 @@ def billingDot(p,v,c):
   dot['verb']=v
   dot['result']=c
   controlPlane.sadd('users',p)
-  controlPlane.sadd(p+':dots',dot)
+  controlPlane.lpush(p+':dots',dot)
 
 def suMap(x,y,su,p):
   global dataPlane
