@@ -175,7 +175,7 @@ def elements(p,detailed):
     e['revolFormatted']=prettyDeltaCompact(0.0,abs(p['revol']*86400.0))
     if p['revol']<0.0:
       e['revolFormatted']='-'+e['revolFormatted']
-    e.update(p)
+    #e.update(p)
   return e
 
 executor=ThreadPoolExecutor(max_workers=8)

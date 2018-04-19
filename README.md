@@ -9,7 +9,9 @@ The purpose of this code is first and foremost to optimize the number and length
 - Results are cached in Redis 
 - Some long running tasks can be shortened with **proof of work** (PoW)
 
-As explained above, this code provides a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
+**sydneus.py** provides a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
+
+**lib/locator.py** is an optional library that leverages sydneus.py to help perform operations on celestial bodies: please refer to **lib/README.md** for more information.
 
 What it will NOT do for you:
 - Authenticate your users
@@ -36,7 +38,7 @@ SEED='a random string of your liking that is unique for each galaxy'
 By default, the server will start on localhost port 14799. You can set the port with option --port. Although you can run it standalone for development purposes, in production you are strongly advised to manage your front-end with UWSGI (ubuntu packages: uwsgi,uwsgi-core,uwsgi-emperor,uwsgi-plugin-python):
 
 ```
-./universe.py --port=5043 &
+./sydneus.py --port=5043 &
 * Running on http://127.0.0.1:5043/ (Press CTRL+C to quit)
 ```
 
@@ -54,12 +56,16 @@ Each galaxy is elliptical, with highest stars density near the core. The galaxy 
 - Moons are identified by their rank, the first one being closest to their parent planet. For example, **345:638:Apo:3:6** is the sixth moon of planet 3 in the Apo system.
 
 ### Physical characteristics
+To be completed
+
 Notes:
 - Bodies out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
 
 ### Orbital parameters
+To be completed
 
 ### State vectors, spin, time of the day
+To be completed
 
 ## API Documentation
 We have three sets of APIs: procedural generation, realtime elements and management interface.
@@ -120,20 +126,16 @@ curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1/91106006/3/1.423/
 To be completed.
 
 ### Realtime elements API
-Calls to this API are cacheable: all dynamic attributes are updated seamlessly.
-#### Real time logarithmic planetary system map
-Example: dump RWh system map.
-```
-curl 'http://127.0.0.1:14799/v1/map/su/player4067/400/29/RWh'
-[{"revolFormatted": "2h10m40s", "rad": 1487500.9533006737, "mEA": 0.010402687467665962, "radEA": 0.23322007389358487, "hasAtm": false, "m": 6.212869855126415e+22, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "span": 10.0, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "smi": 221168103.25853467, "progress": "22.95%", "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "toPer": "1y133d", "meanAno": 3.8546203774678833, "rho": 225426015.31859565, "theta": 2.46087674772146, "localTime": 5576.811487534919, "g": 1.873998154697319, "fromPer": "148d10h", "dayProgress": 0.7112544092827545, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "localTimeFormatted": "1h32m56s", "periodFormatted": "1y281d", "order": 1}, {"revolFormatted": "1h25m47s", "rad": 3795536.541663314, "mEA": 0.32225345578878817, "radEA": 0.59508890447991, "hasAtm": false, "m": 1.9246168717492847e+24, "smiAU": 1.6857467288938752, "ano": 4.52364837694262, "period": 68178789.6511691, "revol": 0.05957265940113938, "dayProgressAtEpoch": 0.26428897, "span": 300.0, "perStr": 4.596186, "per": 3.924651761499844, "isLocked": false, "smi": 252184121.6877379, "progress": "49.85%", "inHZ": true, "sma": 252608090.57919973, "cls": "E", "ecc": 0.057913000000000006, "denEA": 1.5236689999999997, "toPer": "1y30d", "meanAno": 0.713261104417672, "rho": 241923965.38768595, "theta": 0.7924442628839685, "localTime": 2184.3056773722506, "g": 8.9163958854062, "fromPer": "1y28d", "dayProgress": 0.4243778264134948, "smaAU": 1.6885807858803, "isIrr": false, "den": 8403.034534999999, "localTimeFormatted": "36m24s", "periodFormatted": "2y59d", "order": 2}]
-```
+Calls to this API are not cacheable.
 
 #### Real time orbital elements of a planet
 Example: get orbital elements (and physical characteristics) of planet 1.
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/elements/player4067/400/29/RWh/1'
-{"revolFormatted": "2h10m40s", "rad": 1487500.9533006737, "mEA": 0.010402687467665962, "radEA": 0.23322007389358487, "hasAtm": true, "m": 6.212869855126415e+22, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "progress": "22.95%", "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "toPer": "1y133d", "meanAno": 3.8546507020276994, "rho": 225426015.31859565, "theta": 2.46087674772146, "localTime": 5846.508045580361, "g": 1.873998154697319, "fromPer": "148d10h", "dayProgress": 0.7456509217894006, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "localTimeFormatted": "1h37m26s", "periodFormatted": "1y281d", "order": 1}
+
+{"revolFormatted": "2h10m40s", "fromPer": "149d5h", "dayProgress": 0.3178352585976779, "toPer": "1y132d", "meanAno": 3.8622080878729736, "rho": 225397850.12794173, "progress": "23.08%", "localTimeFormatted": "41m32s", "theta": 2.4530273644516596, "periodFormatted": "1y281d", "localTime": 2492.086232658437}
 ```
+
 ### Management API
 #### List users
 Example: list all users which have been billed so far.
