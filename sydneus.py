@@ -147,8 +147,8 @@ def elements(p,detailed):
   deltar=deltat/(p['revol']*86400.0)
   deltaa=TWOPI*deltap
   deltab=deltar-math.floor(deltar)
-  print "DELTAR "+str(deltar)
-  print "DELTAB "+str(deltab)
+#  print "DELTAR "+str(deltar)
+#  print "DELTAB "+str(deltab)
   e={}
   e['dayProgress']=p['dayProgressAtEpoch']+deltab
   if e['dayProgress']>1.0:

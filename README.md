@@ -11,7 +11,7 @@ The purpose of this code is first and foremost to optimize the number and length
 
 **sydneus.py** provides a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
 
-**lib/locator.py** is an optional library that leverages sydneus.py to help perform operations on celestial bodies: please refer to **lib/README.md** for more information.
+**app/locator.py** is an optional tool that leverages sydneus.py to help perform operations on celestial bodies: please refer to the **app/** README for more information.
 
 What it will NOT do for you:
 - Authenticate your users
