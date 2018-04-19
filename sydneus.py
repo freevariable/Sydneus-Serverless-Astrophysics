@@ -144,7 +144,10 @@ def elements(p,detailed):
   epoch=0.0
   deltat=t-epoch
   deltap=deltat/p['period']
-  deltar=deltat/(p['revol']*86400.0)
+  if p['revol']>0.0:
+    deltar=deltat/(p['revol']*86400.0)
+  else:
+    deltar=0.0
   deltaa=TWOPI*deltap
   deltab=deltar-math.floor(deltar)
 #  print "DELTAR "+str(deltar)
@@ -548,55 +551,55 @@ def discGen(xs,ys,su,r,p):
   if found_su==True:
     for s in r1:
       if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-        s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
-        s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+        s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+        s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
         d=distance(s,p0)
         if (d<=radius):
-          s['dist']=float("{0:.3f}".format(d))
+          s['dist']=float("{0:.5f}".format(d))
           r.append(s);
     if ((su_ly['xly']-xx)>(float(sectorwidth)-radius)):
 #      print "extend x+1"
 #      r2=sectorGen(xi+1,yi)
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
-            s['dist']=float("{0:.3f}".format(d))
+            s['dist']=float("{0:.5f}".format(d))
             r.append(s)
     if ((su_ly['xly']-xx)<radius):
 #      print "extend x-1"
 #      r3=sectorGen(xi-1,yi)  
       for s in r3:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
-            s['dist']=float("{0:.3f}".format(d))
+            s['dist']=float("{0:.5f}".format(d))
             r.append(s)
     if ((su_ly['yly']-yy)>(sectorwidth-radius)):
 #      print "extend y+1"  
 #      r4=sectorGen(xi,yi+1)
       for s in r4:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
-            s['dist']=float("{0:.3f}".format(d))
+            s['dist']=float("{0:.5f}".format(d))
             r.append(s)    
     if ((su_ly['yly']-yy)<radius):
 #      print "extend y-1"  
 #      r5=sectorGen(xi,yi-1) 
       for s in r5:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.3f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.3f}".format(s['yly']-su_ly['yly']))        
+          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
-            s['dist']=float("{0:.3f}".format(d))
+            s['dist']=float("{0:.5f}".format(d))
             r.append(s)        
   else:  #not found
     return '[]'

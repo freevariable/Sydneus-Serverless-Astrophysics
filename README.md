@@ -84,7 +84,7 @@ curl 'http://127.0.0.1:14799/v1/list/disc/player4067/400/29/jmj/3.4'
 #### Suns (without Proof of Work)
 
 Example: generate the physical characteristics of sun RWh in sector 400:29 (on behalf of player4067). Here, we see that this sun has two planets in orbit.
-Also notice the proof of work that we may reuse later one.
+Also notice the proof of work that we may reuse later on.
 
 ```
 curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
@@ -104,7 +104,7 @@ curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.
 
 #### Planets (without Proof of Work)
 
-Example: generate the physical characteristics of the first planet orbiting sun RWh. We can see that this planet is in the habitable zone, what's more it has an atmosphere but its gravity is nearly twice as much as earth.
+Example: generate the physical characteristics of the first planet orbiting sun RWh. We can see that this is a small planet (radius 1487.5km) in the habitable zone of RWh, what's more it has an atmosphere but its gravity is low, similar to our good old Moon.
 
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1'
