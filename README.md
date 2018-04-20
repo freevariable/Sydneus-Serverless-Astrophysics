@@ -67,12 +67,6 @@ Each such body must be identified by a unique string of your choice, beginning w
 We provide no support for bodies under impulsion.
 
 ### Physical characteristics
-To be completed
-
-Notes:
-- Bodies out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
-
-### Orbital parameters
 
 #### Stars
 
@@ -94,12 +88,27 @@ Notes:
 |perStr    |2.047326 | *Reserved parameter*                               |
 
 #### Planets
+
+To be completed
+
+#### Moons
+
+To be completed
+
+Notes: moons out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
+
+### Orbital parameters
+
+#### Stars
+In Sydneus, stars are static.
+
+#### Planets
 To be completed
 
 #### Moons
 To be completed
 
-### State vectors, spin, time of the day
+### Local time of the day
 To be completed
 
 ## API Documentation
