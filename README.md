@@ -75,22 +75,23 @@ Notes:
 ### Orbital parameters
 
 #### Stars
-Attribute | Example | Comment
-----------|---------|--------
-trig | Apo | Star name, third component of the star locator
-x   | 300 | Sector X, first component of the star locator
-y   | 650 | Sector Y, second component of the star locator
-xly | 1.42373 | X location within sector (in light years)
-yly | 8.03151 | Y location within sector (in light years)
-per  | 5.705832 | Periapsis, in radians
-lumiSU | 1.101024757 | Solar luminosity (Our sun = 1.0)
-mSU | 1.026352 | Solar mass (our sun = 1.0)
-nbPl | 6 | Number of orbiting planets
-HZcenterAU | 1.3030232478 | Radius of the center of the Habitable Zone (in AU) 
-cls | 3 | Star class
-revol | 1254697.879 | Rotation time (in seconds)
-seed | 67403928 | Star seed
-perStr | 2.047326 | *Reserved parameter*
+
+|Attribute | Example | Comment                                            |
+|----------|---------|----------------------------------------------------|
+|trig      |Apo      | Star name, third component of the star locator     |
+|x         |300      | Sector X, first component of the star locator      |
+|y         |650      | Sector Y, second component of the star locator     |
+|xly       |3.6083   | X location within sector (in light years)          |
+|yly       |8.03151  | Y location within sector (in light years)          |
+|per       |5.70582  | Periapsis, in radians                              |
+|lumiSU    |0.88102  | Solar luminosity (Our sun = 1.0)                   |
+|mSU       |1.02635  | Solar mass (our sun = 1.0)                         |
+|nbPl      |6        | Number of orbiting planets                         |
+|HZcenterAU|2.30302  | Radius of the center of the Habitable Zone (in AU) |
+|cls       |3        | Star class                                         |
+|revol     |1497.87  | Rotation time (in seconds)                         |
+|seed      |67403928 | Star seed                                          |
+|perStr    |2.047326 | *Reserved parameter*                               |
 
 #### Planets
 To be completed
