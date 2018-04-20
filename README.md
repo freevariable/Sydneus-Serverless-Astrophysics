@@ -46,7 +46,8 @@ By default, the server will start on localhost port 14799. You can set the port 
 If you wish to use our generator, you will need to purchase an access key from **freevariable** to cover at least your *pay-per-use* usage of our serverless backend.
 
 ## Design
-### Bodies locator
+### Locators
+#### Astronomical bodies
 Each galaxy is elliptical, with highest stars density near the core. The galaxy is divided into 1400x1400 sectors, each sector is a square covering 9 light years wide. So the galaxy is roughly 12600 light years wide.
 
 - Galaxies are identified by their seed.
@@ -55,6 +56,16 @@ Each galaxy is elliptical, with highest stars density near the core. The galaxy 
 - Planets are identified by their rank, the first one being closest to their sun. For example, **345:628:Apo:3** is the third planet in system Apo.
 - Moons are identified by their rank, the first one being closest to their parent planet. For example, **345:638:Apo:3:6** is the sixth moon of planet 3 in the Apo system.
 
+#### Idle satellites and ships
+Artificial bodies are not managed by Sydneus, but the API supports them as a convenience for ease of integration within your code logic.
+Each such body must be identified by a unique string of your choice, beginning with upper or lowercase ASCII. You must make sure this string is unique among all your users.
+
+- Vessel *Harfang* orbiting sun Apo is located with **345:628:Apo:Harfang**
+- Station *Cromwell* orbiting the fifth moon of planet 2 in the 4FN system is located with **76:578:4FN:2:5:Cromwell**
+
+#### Accelerating ships
+We provide no support for bodies under impulsion.
+
 ### Physical characteristics
 To be completed
 
@@ -62,6 +73,29 @@ Notes:
 - Bodies out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
 
 ### Orbital parameters
+
+#### Stars
+Attribute | Example | Comment
+----------|---------|--------
+trig | Apo | Star name, third component of the star locator
+x   | 300 | Sector X, first component of the star locator
+y   | 650 | Sector Y, second component of the star locator
+xly | 1.42373 | X location within sector (in light years)
+yly | 8.03151 | Y location within sector (in light years)
+per  | 5.705832 | Periapsis, in radians
+lumiSU | 1.101024757 | Solar luminosity (Our sun = 1.0)
+mSU | 1.026352 | Solar mass (our sun = 1.0)
+nbPl | 6 | Number of orbiting planets
+HZcenterAU | 1.3030232478 | Radius of the center of the Habitable Zone (in AU) 
+cls | 3 | Star class
+revol | 1254697.879 | Rotation time (in seconds)
+seed | 67403928 | Star seed
+perStr | 2.047326 | *Reserved parameter*
+
+#### Planets
+To be completed
+
+#### Moons
 To be completed
 
 ### State vectors, spin, time of the day
@@ -89,7 +123,7 @@ Also notice the proof of work that we may reuse later on.
 ```
 curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh'
 
-{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "m": 2.0512166010113e+30, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "id": "quadrant:400:29:RWh", "cls": 3, "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "revol": 1254697.8796800002}
+{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "cls": 3, "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "revol": 1254697.8796800002}
 ```
 
 #### Suns (with Proof of Work)
@@ -99,7 +133,7 @@ Example: same as above, but reusing the proof of work and parameters that we got
 ```
 curl 'http://127.0.0.1:14799/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"perStr": 5.705832, "trig": "RWh", "m": 2.0512166010113e+30, "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "id": "quadrant:400:29:RWh", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
+{"perStr": 5.705832, "trig": "RWh", "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
 ```
 
 #### Planets (without Proof of Work)
@@ -109,7 +143,7 @@ Example: generate the physical characteristics of the first planet orbiting sun 
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1'
 
-{"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "m": 6.212869855126415e+22, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
+{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
 ```
 
 #### Planets (with Proof of Work)
@@ -118,10 +152,14 @@ Example: Same as above, but this time reusing the PoW and some procedurally gene
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/player4067/400/29/RWh/1/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"rad": 1487500.9533006737, "mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "smi": 221168103.25853467, "inHZ": true, "sma": 221235547.34088564, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "m": 6.212869855126415e+22, "magnet": 0.901456, "smaAU": 1.478868287777208, "isIrr": false, "den": 4506.422315, "order": 1}
+{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
 ```
 
 #### Moons (without Proof of Work)
+
+To be completed.
+
+#### Moons (with Proof of Work)
 
 To be completed.
 
@@ -129,7 +167,7 @@ To be completed.
 Calls to this API are not cacheable.
 
 #### Real time orbital elements of a planet
-Example: get orbital elements (and physical characteristics) of planet 1.
+Example: get orbital elements of planet 1.
 ```
 curl 'http://127.0.0.1:14799/v1/get/pl/elements/player4067/400/29/RWh/1'
 

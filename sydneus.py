@@ -37,6 +37,7 @@ SHORTFREQ=1 #seconds
 SHORTTHRESH=10  #hits
 SHORTBAN=5  #seconds
 TWOPI=6.28318530718
+AU2KM=149597871.0
 
 def aGauss():
   return random.gauss(0.0,SIGM)
@@ -141,7 +142,10 @@ def getRho(sma,ecc,eccAno):
 
 def elements(p,detailed):
   t=time.time()-883612799.0
-  epoch=0.0
+  if 'epoch' in p:
+    epoch=p['epoch']  #satellites and vessels
+  else:
+    epoch=0.0  #all celestial bodies
   deltat=t-epoch
   deltap=deltat/p['period']
   if p['revol']>0.0:
@@ -160,7 +164,7 @@ def elements(p,detailed):
   e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
   e['meanAno']=(p['ano']+deltaa)%TWOPI
   eccAno=getEccAno(e['meanAno'],p['ecc'])
-  e['rho']=getRho(p['sma'],p['ecc'],eccAno)
+  e['rho']=getRho(p['smaAU']*AU2KM,p['ecc'],eccAno)
   e['theta']=getTheta(eccAno,p['ecc'])
   if (e['theta']>p['per']):
     progress=e['theta']-p['per']
