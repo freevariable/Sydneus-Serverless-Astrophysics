@@ -89,8 +89,8 @@ We provide no support for bodies under impulsion.
 |mSU       |1.02635  | Solar mass (our sun = 1.0)                         |
 |nbPl      |6        | Number of orbiting planets                         |
 |HZcenterAU|2.30302  | Radius of the center of the Habitable Zone (in AU) |
-|cls       |3        | Spectral class (Sydneus code)                      |
-|spectral  |K        | Spectral class (Hertzprung Russel)                 |
+|cls       |3        | Spectral class (Sydneus code, see below)           |
+|spectral  |K        | Spectral class (see below)                         |
 |revol     |1497.87  | Rotation time (in seconds)                         |
 |seed      |67403928 | Star seed                                          |
 |perStr    |2.047326 | *Reserved parameter*                               |
@@ -106,8 +106,8 @@ We provide no support for bodies under impulsion.
 |5         |A           |                                                    |
 |6         |B           |                                                    |
 |7         |O           |                                                    |
-|8         |bd          |                                                    |
-|9         |wd          |                                                    |
+|8         |bd          |brown dwarf                                         |
+|9         |wd          |white dwarf                                         |
 |10        |ns/bh       |Neutron star or black hole                          |
 
 
