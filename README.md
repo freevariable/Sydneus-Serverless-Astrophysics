@@ -95,6 +95,22 @@ We provide no support for bodies under impulsion.
 |seed      |67403928 | Star seed                                          |
 |perStr    |2.047326 | *Reserved parameter*                               |
 
+##### Spectral classes
+
+|cls       | spectral   | Comment                                            |
+|----------|------------|----------------------------------------------------|
+|1         |M           |                                                    |
+|2         |K           |                                                    |
+|3         |G           |                                                    |
+|4         |F           |                                                    |
+|5         |A           |                                                    |
+|6         |B           |                                                    |
+|7         |O           |                                                    |
+|8         |bd          |                                                    |
+|9         |wd          |                                                    |
+|10        |ns/bh       |Neutron star or black hole                          |
+
+
 #### Planets
 
 To be completed
@@ -152,7 +168,7 @@ curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh'
 ```
 
 #### Suns (with Proof of Work)
-Example: same as above, however here you will need not only the sun locator (400:29:RWh), but also the proof of work, the spectral class code (3), the seed, and the x and y coordinates (in light years) of RWh in sector 00:29. All this can be re-used from the previous call above.
+Example: same as above, however here you will need not only the sun locator (400:29:RWh), but also the proof of work, the spectral class code (3), the seed, and the x and y coordinates (in light years) of RWh in sector 400:29. All this can be re-used from the previous call above.
 
 ```
 curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='

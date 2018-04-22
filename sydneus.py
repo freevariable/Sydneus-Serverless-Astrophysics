@@ -20,6 +20,18 @@ from concurrent.futures import ThreadPoolExecutor
 import cPickle as pickle
 from localconf import *
 
+spectral={}
+spectral[1]='M'
+spectral[2]='K'
+spectral[3]='G'
+spectral[4]='F'
+spectral[5]='A'
+spectral[6]='B'
+spectral[7]='O'
+spectral[8]='bd'
+spectral[9]='wd'
+spectral[10]='bh/ns'
+
 class setEncoder(json.JSONEncoder):
   def default(self,obj):
     if isinstance(obj,set):
@@ -376,6 +388,7 @@ def plGen(x,y,su,pl,p):
   return r1
 
 def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
+  global spectral
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
@@ -390,7 +403,10 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,rss)
+      r1['spectral']=spectral[r1['cls']]
+      del r1['id']
+      r2=json.dumps(r1)
+      dataPlane.set(cacheLocator,r2)
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
@@ -402,6 +418,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
 
 def suGen(x,y,su,p):
   global dataPlane
+  global spectral
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
   if res is None:
@@ -415,7 +432,10 @@ def suGen(x,y,su,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,rss)
+      r1['spectral']=spectral[r1['cls']]
+      del r1['id']
+      r2=json.dumps(r1)
+      dataPlane.set(cacheLocator,r2)
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
@@ -445,6 +465,7 @@ def throttle(p):
 def sectorGen(x,y,p):
   global dataPlane
   global controlPlane
+  global spectral
   cacheLocator=str(x)+':'+str(y)
   res=dataPlane.get(cacheLocator)
   if res is None:
