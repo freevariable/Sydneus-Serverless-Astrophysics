@@ -160,8 +160,8 @@ def elements(p,detailed):
     epoch=0.0  #all celestial bodies
   deltat=t-epoch
   deltap=deltat/p['period']
-  if p['revol']>0.0:
-    deltar=deltat/(p['revol']*86400.0)
+  if p['spin']>0.0:
+    deltar=deltat/(p['spin']*86400.0)
   else:
     deltar=0.0
   deltaa=TWOPI*deltap
@@ -172,7 +172,7 @@ def elements(p,detailed):
   e['dayProgress']=p['dayProgressAtEpoch']+deltab
   if e['dayProgress']>1.0:
     e['dayProgress']=e['dayProgress']-1.0
-  e['localTime']=e['dayProgress']*p['revol']*86400.0
+  e['localTime']=abs(e['dayProgress']*p['spin']*86400.0)
   e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
   e['meanAno']=(p['ano']+deltaa)%TWOPI
   eccAno=getEccAno(e['meanAno'],p['ecc'])
@@ -191,9 +191,9 @@ def elements(p,detailed):
   e['fromPer']=dateTimeFromPer
   if detailed:
     e['periodFormatted']=prettyDeltaCompact(0.0,p['period'])
-    e['revolFormatted']=prettyDeltaCompact(0.0,abs(p['revol']*86400.0))
-    if p['revol']<0.0:
-      e['revolFormatted']='-'+e['revolFormatted']
+    e['spinFormatted']=prettyDeltaCompact(0.0,abs(p['spin']*86400.0))
+    if p['spin']<0.0:
+      e['spinFormatted']='-'+e['spinFormatted']
     #e.update(p)
   return e
 

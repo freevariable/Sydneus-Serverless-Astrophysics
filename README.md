@@ -20,7 +20,16 @@ What they will NOT do for you:
 - Persist data in storage (filesystem, database)
 
 ## Getting started
-### Installation (Ubuntu)
+
+### Recommended installation modes
+
+We encourage you to consider one of the following installation modes:
+- Ubuntu vanilla (for test)
+- Ubuntu + HAproxy + UWSGI (for unmanaged production)
+- Amazon Fargate (for managed production)
+- Azure Kubernetes AKS (for managed production)
+
+### Installation (Ubuntu vanilla)
 sudo apt-get update
 
 sudo apt-get install -y redis-server python curl python-redis python-flask python-flask-api
@@ -45,7 +54,7 @@ By default, the server will start on localhost port 5043. You can set the port w
 ### Get your own key
 If you wish to use our generator, you will need to purchase an access key from **freevariable** to cover at least your *pay-per-use* usage of our serverless backend.
 
-### Probe your first sun!
+### Probe your first solar system!
 Make the following call to the **list/sector** API; it will dump a list of systems in a JSON file:
 ```
 curl 'http://127.0.0.1:5043/v1/list/sector/player4067/310/224'
@@ -72,7 +81,7 @@ Each such body must be identified by a unique string of your choice, beginning w
 #### Accelerating ships
 We provide no support for bodies under impulsion.
 
-### Physical characteristics
+### Physical characteristics: keys and values
 
 #### Stars
 
@@ -113,7 +122,28 @@ We provide no support for bodies under impulsion.
 
 #### Planets
 
-To be completed
+|Key       | Value   | Comment                                            |
+|----------|---------|----------------------------------------------------|
+|order     |11       | Planet rank within system                          |
+|cls       |J        | Terran     (E) or Jovian (J)                       |
+|g         |12.6057  | Surface gravity  (Earth=9.81)                      |
+|mEA       |5.36242  | Earth mass (Earth=1.0)                             |
+|radEA     |2.0416   | Earth radius (Earth=1.0)                           |
+|denEA     |0.62789  | Earth density (Earth=1.0)                          |
+|hasAtm    |True     | Has an atmosphere                                  |
+|isLocked  |True     | Spin is locked                                     |
+|isIrr     |False    | Is within sun radiation zone                       |
+|inHZ      |False    | Is in Habitable Zone                               |
+|smiAU     |763.662  | Semi-minor axis in AU                              |
+|smaAU     |763.675  | Semi-major axis in AU                              |
+|ecc       |0.00574  | Eccentricity                                       |
+|per       |0.87874  | Periapsis (in radians)                             |
+|ano       |4.42784  | Anomaly at epoch                                   |
+|hill      |153...   | Radius of Hill sphere (in km)                      |
+|perStr    |4.42784  | Reserved                                           |
+|spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
+|period    |453...   | Orbital period in seconds                          |
+|dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
 
 #### Moons
 
@@ -127,7 +157,18 @@ Notes: moons out of hydrostatic equilibrium (ie small bodies of about less than 
 In Sydneus, stars are static.
 
 #### Planets
-To be completed
+|Key            | Value     | Comment                                            |
+|---------------|-----------|----------------------------------------------------|
+|spinFormatted  |-4h33m44s  |                                                    |
+|dayProgress    |0.89799    |Day progress now (same as at epoch if locked)       |
+|localTime      |4h5m49s    |Time now at ref meridian                            |
+|fromPer        |2238y      |Time from periapsis                                 |
+|to  Per        |12130y     |Time to periapsis                                   |
+|progress       |15.58%     |Orbital period progress                             |
+|meanAno        |4.436726   |Mean Anomaly (realtime) in radians                  |
+|rho            |11442...   |Polar distance from sun (realtime) in km            |
+|theta          |1.857695   |Polar angle (realtime) in radians                   |
+
 
 #### Moons
 To be completed
