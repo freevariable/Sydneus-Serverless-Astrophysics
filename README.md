@@ -55,7 +55,7 @@ By default, the server will start on localhost port 5043. You can set the port w
 If you wish to use our generator, you will need to purchase an access key from **freevariable** to cover at least your *pay-per-use* usage of our serverless backend.
 
 ### Probe your first solar system!
-Make the following call to the **list/sector** API; it will dump a list of systems in a JSON file:
+Make the following call to the **list/sector** API; it will dump a list of systems in a JSON response:
 ```
 curl 'http://127.0.0.1:5043/v1/list/sector/player4067/310/224'
 ```
@@ -104,7 +104,6 @@ To be completed
 |y         |650      | Sector Y, second component of the star locator     |
 |xly       |3.6083   | X location within sector (in light years)          |
 |yly       |8.03151  | Y location within sector (in light years)          |
-|per       |5.70582  | Periapsis, in radians                              |
 |lumiSU    |0.88102  | Solar luminosity (Our sun = 1.0)                   |
 |absMag    |-1.6492  | Absolute magnitude                                 |
 |mSU       |1.02635  | Solar mass (our sun = 1.0)                         |
@@ -114,6 +113,7 @@ To be completed
 |spectral  |K        | Spectral class (see below)                         |
 |revol     |1497.87  | Rotation time (in seconds)                         |
 |seed      |67403928 | Star seed                                          |
+|per       |5.70582  | *Reserved parameter*                               |
 |perStr    |2.047326 | *Reserved parameter*                               |
 
 ##### Spectral classes
@@ -158,7 +158,7 @@ To be completed
 |per       |0.87874  | Periapsis (in radians)                             |
 |ano       |4.42784  | Anomaly at epoch                                   |
 |hill      |153...   | Radius of Hill sphere (in km)                      |
-|perStr    |4.42784  | Reserved                                           |
+|perStr    |4.42784  | *Reserved parameter*                               | 
 |spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
 |period    |453...   | Orbital period in seconds                          |
 |dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
@@ -190,7 +190,7 @@ To be completed
 
 |Key            | Value     | Comment                                            |
 |---------------|-----------|----------------------------------------------------|
-|spinFormatted  |-4h33m44s  |                                                    |
+|spinFormatted  |-4h33m44s  |Negative means retrograde                           |
 |dayProgress    |0.89799    |Day progress now (same as at epoch if locked)       |
 |localTime      |4h5m49s    |Time now at ref meridian                            |
 |fromPer        |2238y      |Time from periapsis                                 |
@@ -225,7 +225,7 @@ curl 'http://127.0.0.1:5043/v1/list/sector/player4067/310/224'
 ```
 
 #### Discs
-Example: generate a disc of radius 3.4 light years centered arount star 400:29:jmj on behalf of user *player4067*
+Example: generate a disc of radius 3.4 light years centered around star 400:29:jmj on behalf of user *player4067*
 
 ```
 curl 'http://127.0.0.1:5043/v1/list/disc/player4067/400/29/jmj/3.4'
