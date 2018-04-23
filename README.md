@@ -81,9 +81,21 @@ Each such body must be identified by a unique string of your choice, beginning w
 #### Accelerating ships
 We provide no support for bodies under impulsion.
 
-### Physical characteristics: keys and values
+## API Documentation
+We have three sets of APIs: procedural generation, realtime elements and management interface.
+- Procedural generation is fully cacheable. It is cached in a redis DB called dataPlane.
+- Realtime elements are not cached. They are interpolated from procedural generation items.
+- Management data are cached in a redis DB called controlPlane.
+
+### Procedural generation 
 
 #### Stars
+
+##### Request parameters
+
+To be completed
+
+##### Response elements
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
@@ -122,6 +134,12 @@ We provide no support for bodies under impulsion.
 
 #### Planets
 
+##### Request parameters
+
+To be completed
+
+##### Response elements
+
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
 |order     |11       | Planet rank within system                          |
@@ -147,16 +165,29 @@ We provide no support for bodies under impulsion.
 
 #### Moons
 
+##### Request parameters
+
+To be completed
+
+##### Response elements
+
 To be completed
 
 Notes: moons out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
 
-### Orbital parameters
+### Realtime API
 
 #### Stars
 In Sydneus, stars are static.
 
 #### Planets
+
+##### Request parameters
+
+To be completed
+
+##### Response elements
+
 |Key            | Value     | Comment                                            |
 |---------------|-----------|----------------------------------------------------|
 |spinFormatted  |-4h33m44s  |                                                    |
@@ -171,16 +202,18 @@ In Sydneus, stars are static.
 
 
 #### Moons
+
+##### Request parameters
+
 To be completed
 
-### Local time of the day
+##### Response elements
+
 To be completed
 
-## API Documentation
-We have three sets of APIs: procedural generation, realtime elements and management interface.
-- Procedural generation is fully cacheable. It is cached in a redis DB called dataPlane.
-- Realtime elements are not cached. They are interpolated from procedural generation items.
-- Management data are cached in a redis DB called controlPlane.
+### Management API
+
+## Examples 
 
 ### Procedural generation
 
