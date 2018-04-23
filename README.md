@@ -36,10 +36,13 @@ sudo apt-get install -y redis-server python curl python-redis python-flask pytho
 
 Then: clone **Sydneus** from GitHub and... voila!
 
+### Get your own access key
+You need to private message https://www.reddit.com/user/freevar to purchase an access key from **freevariable** to cover usage of our serverless backend in **pay per use** mode (so it's very, very cheap).
+
 ### Configuration
 In your local clone directory, you need to create a file called localconf.py containing the following:
 ```python
-ASKYOURS='your access key, provided by Freevariable'
+ASKYOURS='your access key'
 SEED='a random string of your liking that is unique for each galaxy'
 ```
 
@@ -50,9 +53,6 @@ By default, the server will start on localhost port 5043. You can set the port w
 ./sydneus.py --port=5043 &
 * Running on http://127.0.0.1:5043/ (Press CTRL+C to quit)
 ```
-
-### Get your own key
-If you wish to use our generator, you will need to purchase an access key from **freevariable** to cover at least your *pay-per-use* usage of our serverless backend.
 
 ### Probe your first solar system!
 Make the following call to the **list/sector** API; it will dump a list of systems in a JSON response:
