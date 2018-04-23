@@ -89,6 +89,17 @@ We have three sets of APIs: procedural generation, realtime elements and managem
 
 ### Procedural generation 
 
+#### Parameters types
+
+- sectorX: X locator of a sector (integer in range 1-1400)
+- sectorY: Y locator of a sector (integer in range 1-1400)
+- trigram: star's trigram (string)
+- radius: a distance, in light years (float)
+- pl: a planet's rank within a solar system (integer, 1=closest to the sun)
+- mo: a moon's rank within a planetary system (integer, 1=closest to the planet)
+- user: a unique user id that you manage (string)
+- vessel: a unique vessel or station id that you manage (string)
+
 #### Sectors
 
 ##### Request parameters
@@ -231,14 +242,20 @@ Notes: moons out of hydrostatic equilibrium (ie small bodies of about less than 
 
 ### Realtime API
 
+#### Parameter types
+
+They are the same as above.
+
 #### Stars
-In Sydneus, stars are static.
+In Sydneus, **stars are static**.
 
 #### Planets
 
 ##### Request parameters
 
-To be completed
+```
+/v1/get/pl/elements/<user>/<sectorX>/<sectorY>/<trigram>/<pl>
+```
 
 ##### Response elements
 
