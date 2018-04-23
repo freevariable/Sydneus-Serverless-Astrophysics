@@ -89,13 +89,59 @@ We have three sets of APIs: procedural generation, realtime elements and managem
 
 ### Procedural generation 
 
+#### Sectors
+
+##### Request parameters
+
+```
+/v1/list/sector/<user>/<sectorX>/<sectorY>
+```
+
+##### Response elements
+
+A JSON **list** of 0 or more suns with the following elements:
+
+|Key       | Value   | Comment                                            |
+|----------|---------|----------------------------------------------------|
+|xly       |3.73524  | X location (in light years) within sector          |
+|yly       |0.18146  | Y location (in light years) within sector          |
+|trig      |rka      | Trigram within sector                              |
+|seed      |83455592 | Seed                                               |
+|cls       |6        | Spectral class                                     |
+
+#### Discs
+
+##### Request parameters
+
+```
+/v1/list/disc/<user>/<sectorX>/<sectorY>/<trigram>/<radius>
+```
+
+##### Response elements
+
+A JSON **list** of 0 or more suns with the following elements:
+
+|Key       | Value   | Comment                                            |
+|----------|---------|----------------------------------------------------|
+|dist      |2.85539  | Distance to sun reference                          |
+|xly       |3.73524  | X location (in light years) within sector          |
+|yly       |0.18146  | Y location (in light years) within sector          |
+|trig      |rka      | Trigram within sector                              |
+|seed      |83455592 | Seed                                               |
+|cls       |6        | Spectral class                                     |
+
+
 #### Stars
 
 ##### Request parameters
 
-To be completed
+```
+/v1/get/su/<user>/<sectorX>/<sectorY>/<trigram>
+```
 
 ##### Response elements
+
+The physical characteristics of the sun:
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
@@ -111,10 +157,12 @@ To be completed
 |HZcenterAU|2.30302  | Radius of the center of the Habitable Zone (in AU) |
 |cls       |3        | Spectral class (Sydneus code, see below)           |
 |spectral  |K        | Spectral class (see below)                         |
-|revol     |1497.87  | Rotation time (in seconds)                         |
+|spin      |1497.87  | Rotation time (in seconds)                         |
 |seed      |67403928 | Star seed                                          |
 |per       |5.70582  | *Reserved parameter*                               |
 |perStr    |2.047326 | *Reserved parameter*                               |
+|fuel      |5        | *Reserved parameter*                               |
+|fuelQty   |8.1      | *Reserved parameter*                               |
 
 ##### Spectral classes
 
@@ -136,9 +184,13 @@ To be completed
 
 ##### Request parameters
 
-To be completed
+```
+/v1/get/pl/<user>/<sectorX>/<sectorY>/<trigram>/<pl>
+```
 
 ##### Response elements
+
+The physical characteristics of the planet:
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
@@ -167,7 +219,9 @@ To be completed
 
 ##### Request parameters
 
-To be completed
+```
+/v1/get/mo/<user>/<sectorX>/<sectorY>/<trigram>/<pl>/<mo>
+```
 
 ##### Response elements
 
@@ -238,7 +292,7 @@ Also notice the proof of work that we may reuse later on.
 ```
 curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh'
 
-{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "cls": 3, "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "revol": 1254697.8796800002}
+{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "cls": 3, "spectral": "G", "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "spin": 1254697.8796800002}
 ```
 
 #### Suns (with Proof of Work)
@@ -247,7 +301,7 @@ Example: same as above, however here you will need not only the sun locator (400
 ```
 curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"perStr": 5.705832, "trig": "RWh", "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "xly": 1.423, "y": 29, "x": 400, "revol": 1254697.8796800002, "mSU": 1.026352406, "cls": 3}
+{"perStr": 5.705832, "trig": "RWh", "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "xly": 1.423, "y": 29, "x": 400, "spin": 1254697.8796800002, "mSU": 1.026352406, "cls": 3, "spectral": "G"}
 ```
 
 #### Planets (without Proof of Work)
@@ -257,7 +311,7 @@ Example: generate the physical characteristics of the first planet orbiting sun 
 ```
 curl 'http://127.0.0.1:5043/v1/get/pl/player4067/400/29/RWh/1'
 
-{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
+{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
 ```
 
 #### Planets (with Proof of Work)
@@ -266,7 +320,7 @@ Example: Same as above, but this time reusing the PoW and the same procedurally 
 ```
 curl 'http://127.0.0.1:5043/v1/get/pl/player4067/400/29/RWh/1/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "revol": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
+{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
 ```
 
 #### Moons (without Proof of Work)
@@ -285,7 +339,7 @@ Example: get orbital elements of planet 1.
 ```
 curl 'http://127.0.0.1:5043/v1/get/pl/elements/player4067/400/29/RWh/1'
 
-{"revolFormatted": "2h10m40s", "fromPer": "149d5h", "dayProgress": 0.3178352585976779, "toPer": "1y132d", "meanAno": 3.8622080878729736, "rho": 225397850.12794173, "progress": "23.08%", "localTimeFormatted": "41m32s", "theta": 2.4530273644516596, "periodFormatted": "1y281d", "localTime": 2492.086232658437}
+{"spinFormatted": "2h10m40s", "fromPer": "149d5h", "dayProgress": 0.3178352585976779, "toPer": "1y132d", "meanAno": 3.8622080878729736, "rho": 225397850.12794173, "progress": "23.08%", "localTimeFormatted": "41m32s", "theta": 2.4530273644516596, "periodFormatted": "1y281d", "localTime": 2492.086232658437}
 ```
 
 ### Management API
