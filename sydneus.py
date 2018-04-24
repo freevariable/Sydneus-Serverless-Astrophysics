@@ -20,18 +20,6 @@ from concurrent.futures import ThreadPoolExecutor
 import cPickle as pickle
 from localconf import *
 
-spectral={}
-spectral[1]='M'
-spectral[2]='K'
-spectral[3]='G'
-spectral[4]='F'
-spectral[5]='A'
-spectral[6]='B'
-spectral[7]='O'
-spectral[8]='bd'
-spectral[9]='wd'
-spectral[10]='bh/ns'
-
 class setEncoder(json.JSONEncoder):
   def default(self,obj):
     if isinstance(obj,set):
@@ -222,27 +210,18 @@ def v1getSun(x,y,su,p):
 def v1getSunWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   return json.dumps(suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p))
 
-@app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
-def v1getPl(x,y,su,pl,p):
-  return json.dumps(plGen(x,y,su,pl,p))
+@app.route("/v1/list/pl/<p>/<x>/<y>/<su>", methods=["GET"])
+def v1getPl(x,y,su,p):
+  return json.dumps(plGen(x,y,su,None,p))
 
-@app.route("/v1/get/pl/<p>/<x>/<y>/<su>/<pl>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
+@app.route("/v1/list/pl/<p>/<x>/<y>/<su>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
 def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
-  return json.dumps(plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p))
+  return json.dumps(plGenWithPoW(x,y,su,None,suseed,sucls,sux,suy,proof,p))
 
 @app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPlElements(x,y,su,pl,p):
   ap=plGen(x,y,su,pl,p)
   return json.dumps(elements(ap,True))
-
-@app.route("/v1/map/su/<p>/<x>/<y>/<su>", methods=["GET"])
-def v1listPl(x,y,su,p):
-  pls=suMap(x,y,su,p)
-  l=[]
-  for ap in pls:
-    e=elements(ap,True) 
-    l.append(e)
-  return json.dumps(l)
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):
@@ -321,26 +300,15 @@ def billingDot(p,v,c):
   controlPlane.sadd('users',p)
   controlPlane.lpush(p+':dots',dot)
 
-def suMap(x,y,su,p):
-  global dataPlane
-  if throttle(p):
-    return status.HTTP_503_SERVICE_UNAVAILABLE
-  verb='plMap'
-  url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
-  print "URL="+url
-  try:
-    rs=urllib2.urlopen(url)
-    rss=rs.read()
-    r1=json.loads(rss)
-    billingDot(p,verb,rs.getcode())
-    return r1
-  except urllib2.HTTPError, e:
-    return status  
-
 def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   global dataPlane
-  cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
-  res=dataPlane.get(cacheLocator)
+  if pl is None:
+    pl='*'
+    cacheLocator=str(x)+':'+str(y)+':'+su+':*'
+    res=dataPlane.get(cacheLocator)
+  else:
+    cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
+    res=dataPlane.get(cacheLocator)
   if res is None:
     print 'MISS '+cacheLocator
     if throttle(p):
@@ -354,6 +322,9 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
       r1=json.loads(rss)
       dataPlane.set(cacheLocator,rss)
       billingDot(p,verb,rs.getcode())
+      for aP in r1:
+        cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+        dataPlane.set(cacheLocator,json.dumps(aP))
       return r1
     except urllib2.HTTPError, e:
       return status  
@@ -364,8 +335,13 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 
 def plGen(x,y,su,pl,p):
   global dataPlane
-  cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
-  res=dataPlane.get(cacheLocator)
+  if pl is None:
+    pl='*'
+    cacheLocator=str(x)+':'+str(y)+':'+su+':*'
+    res=dataPlane.get(cacheLocator)
+  else:
+    cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
+    res=dataPlane.get(cacheLocator)
   if res is None:
     print 'MISS '+cacheLocator
     if throttle(p):
@@ -379,6 +355,9 @@ def plGen(x,y,su,pl,p):
       r1=json.loads(rss)
       dataPlane.set(cacheLocator,rss)
       billingDot(p,verb,rs.getcode())
+      for aP in r1:
+        cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+        dataPlane.set(cacheLocator,json.dumps(aP))
       return r1
     except urllib2.HTTPError, e:
       return status  
@@ -388,7 +367,6 @@ def plGen(x,y,su,pl,p):
   return r1
 
 def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
-  global spectral
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
@@ -403,10 +381,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      r1['spectral']=spectral[r1['cls']]
-      del r1['id']
-      r2=json.dumps(r1)
-      dataPlane.set(cacheLocator,r2)
+      dataPlane.set(cacheLocator,r1)
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
@@ -418,7 +393,6 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
 
 def suGen(x,y,su,p):
   global dataPlane
-  global spectral
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
   if res is None:
@@ -432,10 +406,7 @@ def suGen(x,y,su,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      r1['spectral']=spectral[r1['cls']]
-      del r1['id']
-      r2=json.dumps(r1)
-      dataPlane.set(cacheLocator,r2)
+      dataPlane.set(cacheLocator,r1)
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
@@ -447,10 +418,18 @@ def suGen(x,y,su,p):
 
 def throttle(p):
   global controlPlane
+  throttled=False
   thr=controlPlane.get(p+':isThrottled?')
   if thr is not None:
-    return True
-  else:
+    throttled=True
+    controlPlane.incr(p+':shortCounter',1)
+    cnt=int(controlPlane.get(p+':shortCounter'))
+    auxi=random.randint(0,cnt)
+    if auxi==0:
+      throttled=False
+    else:
+      return True
+  if thr is None or throttled==False:
     controlPlane.incr(p+':shortCounter',1)
     cnt=int(controlPlane.get(p+':shortCounter'))
     if cnt==1: #start SHORTFREQ timer
@@ -465,7 +444,6 @@ def throttle(p):
 def sectorGen(x,y,p):
   global dataPlane
   global controlPlane
-  global spectral
   cacheLocator=str(x)+':'+str(y)
   res=dataPlane.get(cacheLocator)
   if res is None:

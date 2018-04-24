@@ -170,8 +170,6 @@ The physical characteristics of the sun:
 |spectral  |K        | Spectral class (see below)                         |
 |spin      |1497.87  | Rotation time (in seconds)                         |
 |seed      |67403928 | Star seed                                          |
-|per       |5.70582  | *Reserved parameter*                               |
-|perStr    |2.047326 | *Reserved parameter*                               |
 |fuel      |5        | *Reserved parameter*                               |
 |fuelQty   |8.1      | *Reserved parameter*                               |
 
@@ -196,16 +194,16 @@ The physical characteristics of the sun:
 ##### Request parameters
 
 ```
-/v1/get/pl/<user>/<sectorX>/<sectorY>/<trigram>/<pl>
+/v1/list/pl/<user>/<sectorX>/<sectorY>/<trigram>
 ```
 
 ##### Response elements
 
-The physical characteristics of the planet:
+A JSON **list** of 0 or more suns with the following elements:
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
-|order     |11       | Planet rank within system                          |
+|rank      |11       | Planet rank within system                          |
 |cls       |J        | Terran     (E) or Jovian (J)                       |
 |g         |12.6057  | Surface gravity  (Earth=9.81)                      |
 |mEA       |5.36242  | Earth mass (Earth=1.0)                             |
@@ -221,7 +219,6 @@ The physical characteristics of the planet:
 |per       |0.87874  | Periapsis (in radians)                             |
 |ano       |4.42784  | Anomaly at epoch                                   |
 |hill      |153...   | Radius of Hill sphere (in km)                      |
-|perStr    |4.42784  | *Reserved parameter*                               | 
 |spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
 |period    |453...   | Orbital period in seconds                          |
 |dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
@@ -231,7 +228,7 @@ The physical characteristics of the planet:
 ##### Request parameters
 
 ```
-/v1/get/mo/<user>/<sectorX>/<sectorY>/<trigram>/<pl>/<mo>
+/v1/list/mo/<user>/<sectorX>/<sectorY>/<trigram>/<pl>
 ```
 
 ##### Response elements
@@ -303,13 +300,13 @@ curl 'http://127.0.0.1:5043/v1/list/disc/player4067/400/29/jmj/3.4'
 ```
 
 #### Suns (without Proof of Work)
-Example: generate the physical characteristics of sun RWh in sector 400:29 (on behalf of player4067). Here, we see that this sun has two planets in orbit.
+Example: generate the physical characteristics of sun RWh in sector 400:29 (on behalf of player4067). Here, we see that this sun has only one planet in orbit.
 Also notice the proof of work that we may reuse later on.
 
 ```
 curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh'
 
-{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": 91106006, "cls": 3, "spectral": "G", "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "spin": 1254697.8796800002}
+{"pow": "JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE=", "trig": "RWh", "perStr": 5.705832, "per": 3.5505651852343463, "lumiSU": 1.1010247142796168, "nbPl": 1, "HZcenterAU": 1.303023247848569, "seed": 91106006, "cls": 3, "spectral": "G", "xly": 1.423, "y": 29, "x": 400, "yly": 8.031, "mSU": 1.026352406, "spin": 1254697.8796800002}
 ```
 
 #### Suns (with Proof of Work)
@@ -318,26 +315,26 @@ Example: same as above, however here you will need not only the sun locator (400
 ```
 curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"perStr": 5.705832, "trig": "RWh", "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 2, "HZcenterAU": 1.303023247848569, "seed": "91106006", "xly": 1.423, "y": 29, "x": 400, "spin": 1254697.8796800002, "mSU": 1.026352406, "cls": 3, "spectral": "G"}
+{"perStr": 5.705832, "trig": "RWh", "lumiSU": 1.1010247142796168, "per": 3.5505651852343463, "yly": 8.031, "nbPl": 1, "HZcenterAU": 1.303023247848569, "seed": "91106006", "xly": 1.423, "y": 29, "x": 400, "spin": 1254697.8796800002, "mSU": 1.026352406, "cls": 3, "spectral": "G"}
 ```
 
 #### Planets (without Proof of Work)
 
-Example: generate the physical characteristics of the first planet orbiting sun RWh. We can see that this is a small planet (radius 1487.5km) in the habitable zone of RWh, what's more it has an atmosphere but its gravity is low, similar to our good old Moon.
+Example: generate the physical characteristics of the planet orbiting sun RWh. We can confirm that there is only one planet because the returned list has only one item. It is a small planet (radius 1487.5km) in the habitable zone of RWh, what's more it has an atmosphere but its gravity is low, similar to our good old Moon.
 
 ```
-curl 'http://127.0.0.1:5043/v1/get/pl/player4067/400/29/RWh/1'
+curl 'http://127.0.0.1:5043/v1/list/pl/player4067/400/29/RWh'
 
-{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
+[{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "rank": 1}]
 ```
 
 #### Planets (with Proof of Work)
 
 Example: Same as above, but this time reusing the PoW and the same procedurally generated items obtained above during sun generation.
 ```
-curl 'http://127.0.0.1:5043/v1/get/pl/player4067/400/29/RWh/1/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
+curl 'http://127.0.0.1:5043/v1/list/pl/player4067/400/29/RWh/1/91106006/3/1.423/8.031/JRprDMexJidlAbtrgsN7tpIlqOxy4b8lRa7h5hiRqZE='
 
-{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "order": 1}
+[{"mEA": 0.010402687467665962, "hasAtm": true, "smiAU": 1.4784174519337556, "ano": 0.9587135469107532, "period": 55880562.18270369, "spin": 0.09075012880266921, "dayProgressAtEpoch": 0.2056876, "perStr": 4.812696000000001, "per": 3.902947712776953, "isLocked": false, "hill": 466355.68892496126, "inHZ": true, "cls": "E", "ecc": 0.024690300000000002, "denEA": 0.817121, "radEA": 0.23322007389358487, "g": 1.873998154697319, "smaAU": 1.478868287777208, "isIrr": false, "rank": 1}]
 ```
 
 #### Moons (without Proof of Work)
@@ -352,7 +349,7 @@ To be completed.
 Calls to this API are not cacheable.
 
 #### Real time orbital elements of a planet
-Example: get orbital elements of planet 1.
+Example: get orbital elements of the planet orbiting sun RWh. The planet's rank 1 must be provided, even if it's alone in its solar system.
 ```
 curl 'http://127.0.0.1:5043/v1/get/pl/elements/player4067/400/29/RWh/1'
 
