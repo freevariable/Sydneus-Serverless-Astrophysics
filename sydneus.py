@@ -346,9 +346,8 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   elif (len(res)<1):
     return status.HTTP_404_NOT_FOUND
   else:
-    print 'HIT '+cacheLocator
-    r1=json.loads(res)
-  return r1
+    print 'HIT '+cacheLocator+' len '+str(len(res))
+  return res
 
 def plGen(x,y,su,pl,p):
   global dataPlane
@@ -384,9 +383,8 @@ def plGen(x,y,su,pl,p):
   elif len(res)<1:
     return status.HTTP_404_NOT_FOUND
   else:
-    print 'HIT '+cacheLocator
-    r1=json.loads(res)
-  return r1
+    print 'HIT '+cacheLocator+' len '+str(len(res))
+  return res
 
 def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   global dataPlane
@@ -415,15 +413,15 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
     return status.HTTP_404_NOT_FOUND    
   else:
     print 'HIT '+cacheLocator
-    r1=json.loads(res)
-  return r1
+    #r1=json.loads(res)
+  return res
 
 def getCraftAtSu(x,y,su,sc,p):
   global dataPlane
   cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
   if res is None:
-    return'[]'   
+    return '[]'   
   else:
     r1=json.loads(res)
   return r1
@@ -433,7 +431,7 @@ def getCraftAtPl(x,y,su,pl,sc,p):
   cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su+':'+pl
   res=dataPlane.get(cacheLocator)
   if res is None:
-    return'[]'   
+    return '[]'   
   else:
     r1=json.loads(res)
   return r1
@@ -443,7 +441,7 @@ def getCraftAtMo(x,y,su,pl,mo,sc,p):
   cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su+':'+pl+':'+mo
   res=dataPlane.get(cacheLocator)
   if res is None:
-    return'[]'   
+    return '[]'   
   else:
     r1=json.loads(res)
   return r1
@@ -471,12 +469,12 @@ def suGen(x,y,su,p):
       return r1
     except urllib2.HTTPError, e:
       return status  
-  elif 'trig' not in res:
-    return status.HTTP_404_NOT_FOUND
   else:
-    print 'HIT '+cacheLocator
-    r1=json.loads(res)
-  return r1
+    if 'trig' not in res:
+      return status.HTTP_404_NOT_FOUND
+    else:
+      print 'HIT '+cacheLocator
+    return res
 
 def throttle(p):
   global controlPlane
