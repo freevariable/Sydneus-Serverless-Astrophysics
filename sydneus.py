@@ -262,8 +262,8 @@ def initAll():
   except redis.ConnectionError:
     print "FATAL: cannot connect to redis."
     sys.exit()
-  controlPlane.flushdb()
-  dataPlane.flushdb()
+#  controlPlane.flushdb()
+#  dataPlane.flushdb()
 
 def scheduler(period,f,*args):
   def g_tick():
@@ -542,6 +542,33 @@ def discGen(xs,ys,su,r,p):
     loopEnd=(r1done and r2done and r3done and r4done and r5done) 
     time.sleep(0.3)
   for s in r1:
+    if 'trig' not in s:
+      break
+    s['sectorX']=xs
+    s['sectorY']=ys
+  for s in r2:
+    if 'trig' not in s:
+      break
+    s['sectorX']=str(xi+1)
+    s['sectorY']=ys
+  for s in r3:
+    if 'trig' not in s:
+      break
+    s['sectorX']=str(xi-1)
+    s['sectorY']=ys
+  for s in r4:
+    if 'trig' not in s:
+      break
+    s['sectorX']=xs
+    s['sectorY']=str(yi+1)
+  for s in r5:
+    if 'trig' not in s:
+      break
+    s['sectorX']=xs
+    s['sectorY']=str(yi-1)
+  for s in r1:
+    if 'trig' not in s:
+      break
     if (s['trig']==su):
       found_su=True
       su_ly['xly']=float(s['xly'])

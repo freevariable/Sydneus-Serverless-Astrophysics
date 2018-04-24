@@ -3,21 +3,23 @@
 This API's purpose is first and foremost to optimize the number and length of calls (hence the costs) you make to our serverless back-end, then to provide features like JSON-formatting, per-user throttling and per-user billing (if you have paying customers).
 
 In a nutshell, we:
-- Provide physical characteristics, orbital parameters and rotation (spin) parameters
+- Provide physical characteristics, orbital parameters and rotation (spin) parameters of celestial bodies
 - Calculate the real-time state vector of each planet and each moon (suns are static in our galaxies)
-- Galaxies are generated in 2D (meaning that a celestial body's state vector has no *inclination*, and that its rotation and revolution axis are always vertical to the galactic plane)
-- Results are cached in Redis 
-- Some long running tasks can be shortened with **proof of work** (PoW, see below)
 
-For that, we have two programs:
-- **sydneus.py** is a front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
+A few useful notes:
+- Galaxies are generated in 2D (meaning that a celestial body's state vector has no *inclination*, and that its rotation and revolution axis are always vertical to the galactic plane)
+- All serverless results are cached in Redis 
+- Some long running tasks on the serverless side can be shortened with **proof of work** (PoW, see below)
+
+We have two programs:
+- **sydneus.py** is the front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
 - **app/locator.py** is an optional tool that leverages sydneus.py to help perform operations on celestial bodies: please refer to the **app/** README for more information.
 
-What they will NOT do for you:
+What we will NOT do for you:
 - Authenticate your users
 - Authorize access for your users (can user X see sun Y if he has not visited it yet ?)
-- Be a GUI
-- Persist data in storage (filesystem, database)
+- Provide a GUI
+- Persist cached data (filesystem, database)
 
 ## Getting started
 
@@ -87,6 +89,9 @@ We have three sets of APIs: procedural generation, realtime elements and managem
 - Realtime elements are not cached. They are interpolated from procedural generation items.
 - Management data are cached in a redis DB called controlPlane.
 
+APIs of type **/v1/list/** return a JSON array (ie, a list of JSON objects).
+APIs of type **/v1/get/** return a JSON object (ie, an unordered list of key/value pairs).
+
 ### Procedural generation 
 
 #### Parameters types
@@ -137,6 +142,8 @@ A JSON **list** of 0 or more suns with the following elements:
 |dist      |2.85539  | Distance to sun reference                          |
 |xly       |3.73524  | X location (in light years) within sector          |
 |yly       |0.18146  | Y location (in light years) within sector          |
+|sectorX   |145      | Sector X of star (not always the same as sun ref)  |
+|sectorY   |608      | Sector Y of star (not always the same as sun ref)  |
 |trig      |rka      | Trigram within sector                              |
 |seed      |83455592 | Seed                                               |
 |cls       |6        | Spectral class                                     |
@@ -199,7 +206,7 @@ The physical characteristics of the sun:
 
 ##### Response elements
 
-A JSON **list** of 0 or more suns with the following elements:
+A JSON **list** of 0 or more planets with the following elements:
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
