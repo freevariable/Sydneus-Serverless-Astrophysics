@@ -73,15 +73,15 @@ Each galaxy is elliptical, with highest stars density near the core. The galaxy 
 - Planets are identified by their rank, the first one being closest to their sun. For example, **345:628:Apo:3** is the third planet in system Apo.
 - Moons are identified by their rank, the first one being closest to their parent planet. For example, **345:638:Apo:3:6** is the sixth moon of planet 3 in the Apo system.
 
-#### Idle satellites and ships
+#### Idle spacecrafts 
 Artificial bodies are not managed by Sydneus, but the API supports them as a convenience for ease of integration within your code logic.
-Each such body must be identified by a unique string of your choice, beginning with upper or lowercase ASCII. You must make sure this string is unique among all your users.
+Each spacecraft must be identified by a unique string of your choice, beginning with upper or lowercase ASCII. You must make sure this string is unique among all your users.
 
 - Vessel *Harfang* orbiting sun Apo is located with **345:628:Apo:Harfang**
 - Station *Cromwell* orbiting the fifth moon of planet 2 in the 4FN system is located with **76:578:4FN:2:5:Cromwell**
 
-#### Accelerating ships
-We provide no support for bodies under impulsion.
+#### Accelerating spacecrafts
+We provide no support for bodies under impulsion. You may consider them as a transition between two idle states (two different locators).
 
 ## API Documentation
 We have three sets of APIs: procedural generation, realtime elements and management interface.
@@ -103,7 +103,7 @@ APIs of type **/v1/get/** return a JSON object (ie, an unordered list of key/val
 - pl: a planet's rank within a solar system (integer, 1=closest to the sun)
 - mo: a moon's rank within a planetary system (integer, 1=closest to the planet)
 - user: a unique user id that you manage (string)
-- vessel: a unique vessel or station id that you manage (string)
+- spacecraft: a unique ship or station id that you manage (string)
 
 #### Sectors
 

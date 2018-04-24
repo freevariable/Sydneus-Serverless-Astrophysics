@@ -202,6 +202,18 @@ def v1listUsers():
 def v1getSector(x,y,p):
   return json.dumps(sectorGen(x,y,p))
 
+@app.route("/v1/get/spacecraft/<p>/<x>/<y>/<su>/<sc>", methods=["GET"])
+def v1getCraftAtSu(x,y,su,sc,p):
+  return json.dumps(getCraftAtSu(x,y,su,sc,p))
+
+@app.route("/v1/get/spacecraft/<p>/<x>/<y>/<su>/<pl>/<sc>", methods=["GET"])
+def v1getCraftAtPl(x,y,su,pl,sc,p):
+  return json.dumps(getCraftAtPl(x,y,su,pl,sc,p))
+
+@app.route("/v1/get/spacecraft/<p>/<x>/<y>/<su>/<pl>/<mo>/<sc>", methods=["GET"])
+def v1getCraftAtMo(x,y,su,pl,mo,sc,p):
+  return json.dumps(getCraftAtMo(x,y,su,pl,sc,p))
+
 @app.route("/v1/get/su/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1getSun(x,y,su,p):
   return json.dumps(suGen(x,y,su,p))
@@ -309,7 +321,7 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   else:
     cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
     res=dataPlane.get(cacheLocator)
-  if res is None:
+  if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
       return status.HTTP_503_SERVICE_UNAVAILABLE
@@ -320,7 +332,10 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,rss)
+      if len(rss)>0:
+        dataPlane.set(cacheLocator,rss)
+      else:
+        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
       for aP in r1:
         cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
@@ -328,6 +343,8 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
       return r1
     except urllib2.HTTPError, e:
       return status  
+  elif (len(res)<1):
+    return status.HTTP_404_NOT_FOUND
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
@@ -342,7 +359,7 @@ def plGen(x,y,su,pl,p):
   else:
     cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
     res=dataPlane.get(cacheLocator)
-  if res is None:
+  if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
       return status.HTTP_503_SERVICE_UNAVAILABLE
@@ -353,7 +370,10 @@ def plGen(x,y,su,pl,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,rss)
+      if len(rss)>0:
+        dataPlane.set(cacheLocator,rss)
+      else:
+        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
       for aP in r1:
         cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
@@ -361,6 +381,8 @@ def plGen(x,y,su,pl,p):
       return r1
     except urllib2.HTTPError, e:
       return status  
+  elif len(res)<1:
+    return status.HTTP_404_NOT_FOUND
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
@@ -370,8 +392,8 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
-  if res is None:
-#    print 'MISS '+cacheLocator
+  if (res is None):
+    print 'MISS '+cacheLocator
     if throttle(p):
       return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='suGenWithPoW'
@@ -381,13 +403,48 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,r1)
+      if 'trig' in rss:
+        dataPlane.set(cacheLocator,r1)
+      else:
+        return status.HTTP_404_NOT_FOUND    
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
       return status  
+  elif 'trig' not in res:
+    return status.HTTP_404_NOT_FOUND    
   else:
     print 'HIT '+cacheLocator
+    r1=json.loads(res)
+  return r1
+
+def getCraftAtSu(x,y,su,sc,p):
+  global dataPlane
+  cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+    return'[]'   
+  else:
+    r1=json.loads(res)
+  return r1
+
+def getCraftAtPl(x,y,su,pl,sc,p):
+  global dataPlane
+  cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su+':'+pl
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+    return'[]'   
+  else:
+    r1=json.loads(res)
+  return r1
+
+def getCraftAtMo(x,y,su,pl,mo,sc,p):
+  global dataPlane
+  cacheLocator='spacecraft:'+str(x)+':'+str(y)+':'+su+':'+pl+':'+mo
+  res=dataPlane.get(cacheLocator)
+  if res is None:
+    return'[]'   
+  else:
     r1=json.loads(res)
   return r1
 
@@ -395,7 +452,7 @@ def suGen(x,y,su,p):
   global dataPlane
   cacheLocator=str(x)+':'+str(y)+':'+su
   res=dataPlane.get(cacheLocator)
-  if res is None:
+  if (res is None):
 #    print 'MISS '+cacheLocator
     if throttle(p):
       return status.HTTP_503_SERVICE_UNAVAILABLE
@@ -406,11 +463,16 @@ def suGen(x,y,su,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      dataPlane.set(cacheLocator,r1)
+      if 'trig' in rss:
+        dataPlane.set(cacheLocator,r1)
+      else:
+        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
       return status  
+  elif 'trig' not in res:
+    return status.HTTP_404_NOT_FOUND
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
