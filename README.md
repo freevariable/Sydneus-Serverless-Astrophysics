@@ -23,7 +23,8 @@ What we will NOT do for you:
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
 ## Live demo here! (see documentation below)
-A disc of radius 6.0 light years around star 198:145:H8a is fully accessible in sandbox mode. Please note that the sandbox does not make calls to the backend, its data are stored in a local cache.
+A disc of radius 6.0 light years around star 198:145:H8a is fully accessible in sandbox mode. It has a few stars only and a few planets.
+Please note that the sandbox does not make calls to the backend, its data are stored in a local cache.
 
 **The sandbox API URL is subject to change, check it out regularly**
 
