@@ -352,6 +352,28 @@ To be completed.
 
 To be completed.
 
+#### Spacecrafts
+We do not provide a **list/spacecraft** API, because we intend our API to be highly scalable. If you have tens of thousands of users, listing all spacecrafts orbiting a given sun would be a very bad architecture design.
+
+##### Spacecraft in solar orbit
+
+```
+curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/Cromwell'
+```
+
+##### Spacecraft in planet orbit
+
+```
+curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/3/Cromwell'
+```
+
+##### Spacecraft in moon orbit
+
+```
+
+curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/3/2/Cromwell'
+```
+
 ### Realtime elements API
 Calls to this API are not cacheable.
 

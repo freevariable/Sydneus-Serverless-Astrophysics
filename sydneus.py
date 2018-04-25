@@ -15,7 +15,6 @@
 
 import redis,random,math,sys,uuid,urllib2
 import time,datetime,getopt,flask,json
-from flask_api import status
 from concurrent.futures import ThreadPoolExecutor
 import cPickle as pickle
 from localconf import *
@@ -233,6 +232,8 @@ def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 @app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPlElements(x,y,su,pl,p):
   ap=plGen(x,y,su,pl,p)
+  print "AP"
+  print ap['period']
   return json.dumps(elements(ap,True))
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
@@ -324,7 +325,8 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
-      return status.HTTP_503_SERVICE_UNAVAILABLE
+      flask.abort(503)
+#      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='plGenWithPoW'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof+'&seed='+SEED
     print "URL="+url
@@ -332,22 +334,25 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      if len(rss)>0:
+      if len(rss)>5:
         dataPlane.set(cacheLocator,rss)
       else:
-        return status.HTTP_404_NOT_FOUND
+        #return status.HTTP_404_NOT_FOUND
+        flask.abort(404)
       billingDot(p,verb,rs.getcode())
       for aP in r1:
         cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
         dataPlane.set(cacheLocator,json.dumps(aP))
       return r1
     except urllib2.HTTPError, e:
-      return status  
-  elif (len(res)<1):
-    return status.HTTP_404_NOT_FOUND
+      flask.abort(503)
+#      return status  
+  elif (len(res)<5):
+#    return status.HTTP_404_NOT_FOUND
+     flask.abort(404)
   else:
     print 'HIT '+cacheLocator+' len '+str(len(res))
-  return res
+  return json.loads(res)
 
 def plGen(x,y,su,pl,p):
   global dataPlane
@@ -361,7 +366,8 @@ def plGen(x,y,su,pl,p):
   if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
-      return status.HTTP_503_SERVICE_UNAVAILABLE
+      flask.abort(503)
+#      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='plGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&seed='+SEED
     print "URL="+url
@@ -369,22 +375,26 @@ def plGen(x,y,su,pl,p):
       rs=urllib2.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss)
-      if len(rss)>0:
+      if len(rss)>5:
         dataPlane.set(cacheLocator,rss)
       else:
-        return status.HTTP_404_NOT_FOUND
+        flask.abort(404)
+#        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
       for aP in r1:
         cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+        print cacheLocator
         dataPlane.set(cacheLocator,json.dumps(aP))
       return r1
     except urllib2.HTTPError, e:
-      return status  
-  elif len(res)<1:
-    return status.HTTP_404_NOT_FOUND
+      flask.abort(503)
+#      return status  
+  elif len(res)<5:
+    flask.abort(404)
+#    return status.HTTP_404_NOT_FOUND
   else:
     print 'HIT '+cacheLocator+' len '+str(len(res))
-  return res
+  return json.loads(res)
 
 def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   global dataPlane
@@ -393,7 +403,8 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
-      return status.HTTP_503_SERVICE_UNAVAILABLE
+      flask.abort(503)
+#      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='suGenWithPoW'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof
 #    print "URL="+url
@@ -404,13 +415,16 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       if 'trig' in rss:
         dataPlane.set(cacheLocator,r1)
       else:
-        return status.HTTP_404_NOT_FOUND    
+        flask.abort(404)
+#        return status.HTTP_404_NOT_FOUND    
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
-      return status  
+      flask.abort(503) 
+#      return status  
   elif 'trig' not in res:
-    return status.HTTP_404_NOT_FOUND    
+    flask.abort(404)
+#    return status.HTTP_404_NOT_FOUND    
   else:
     print 'HIT '+cacheLocator
     #r1=json.loads(res)
@@ -453,7 +467,8 @@ def suGen(x,y,su,p):
   if (res is None):
 #    print 'MISS '+cacheLocator
     if throttle(p):
-      return status.HTTP_503_SERVICE_UNAVAILABLE
+      flask.abort(503)
+#      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='suGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
 #    print "URL="+url
@@ -464,14 +479,17 @@ def suGen(x,y,su,p):
       if 'trig' in rss:
         dataPlane.set(cacheLocator,r1)
       else:
-        return status.HTTP_404_NOT_FOUND
+        flask.abort(404)
+#        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
-      return status  
+      flask.abort(503)
+#      return status  
   else:
     if 'trig' not in res:
-      return status.HTTP_404_NOT_FOUND
+      flask.abort(404)
+#      return status.HTTP_404_NOT_FOUND
     else:
       print 'HIT '+cacheLocator
     return res
@@ -509,7 +527,8 @@ def sectorGen(x,y,p):
   if res is None:
     print 'MISS '+cacheLocator
     if throttle(p):
-      return status.HTTP_503_SERVICE_UNAVAILABLE
+      flask.abort(503)
+#      return status.HTTP_503_SERVICE_UNAVAILABLE
     verb='sectorGen'
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
     print "URL="+url
@@ -521,7 +540,8 @@ def sectorGen(x,y,p):
       billingDot(p,verb,rs.getcode())
       return r1
     except urllib2.HTTPError, e:
-      return status  
+      flask.abort(503)
+#      return status  
   else:
     print 'HIT '+cacheLocator
     r1=json.loads(res)
