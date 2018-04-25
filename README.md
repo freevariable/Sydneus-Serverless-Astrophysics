@@ -20,6 +20,18 @@ What we will NOT do for you:
 - Authorize access for your users (can user X see sun Y if he has not visited it yet ?)
 - Provide a GUI
 - Persist cached data (filesystem, database)
+- Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
+
+## Live demo here! (see documentation below)
+A disc of radius 6.0 light years around star 198:145:H8a is fully accessible in sandbox mode. Please note that the sandbox does not make calls to the backend, its data are stored in a local cache.
+
+**The sandbox API URL is subject to change, check it out regularly**
+
+```
+curl 'http://34.234.167.180/v1/list/disc/a/198/145/H8a/6.0'
+
+curl 'http://34.234.167.180/v1/get/pl/elements/a/198/145/9w3/1'
+```
 
 ## Getting started
 
@@ -27,14 +39,14 @@ What we will NOT do for you:
 
 We encourage you to consider one of the following installation modes:
 - Ubuntu vanilla (for test)
-- Ubuntu + HAproxy + UWSGI (for unmanaged production)
+- Ubuntu + HAproxy + nginx + UWSGI (for unmanaged production)
 - Amazon Fargate (for managed production)
 - Azure Kubernetes AKS (for managed production)
 
 ### Installation (Ubuntu vanilla)
 sudo apt-get update
 
-sudo apt-get install -y redis-server python curl python-redis python-flask python-flask-api
+sudo apt-get install -y redis-server python curl python-redis python-flask
 
 Then: clone **Sydneus** from GitHub and... voila!
 
