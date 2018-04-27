@@ -22,18 +22,6 @@ What we will NOT do for you:
 - Persist cached data (filesystem, database)
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
-## Live demo here! (see documentation below)
-A disc of radius 6.0 light years around star 198:145:H8a is fully accessible in sandbox mode. It has a few stars only and a few planets.
-Please note that the sandbox does not make calls to the backend, its data are stored in a local cache.
-
-**The sandbox API URL is subject to change, check it out regularly**
-
-```
-curl 'http://34.234.167.180/v1/list/disc/a/198/145/H8a/6.0'
-
-curl 'http://34.234.167.180/v1/get/pl/elements/a/198/145/9w3/1'
-```
-
 ## Getting started
 
 ### Recommended installation modes
