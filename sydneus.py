@@ -201,7 +201,10 @@ def v1mapSu(pl,pmin,pmax,x,y,su):
       p1['maxSmaAU']=p['smaAU']
     if (p['smiAU']<p1['minSmaAU']):
       p1['minSmaAU']=p['smaAU']
-  scalef=(pMa-pMi)/math.log10(p1['maxSmaAU']/p1['minSmaAU'])
+  if p1['maxSmaAU']==p1['minSmaAU']:
+    scalef=1.0
+  else:
+    scalef=(pMa-pMi)/math.log10(p1['maxSmaAU']/p1['minSmaAU'])
   pR={}
   pR['logScale']=[]
   pR['svg']={}
@@ -302,8 +305,8 @@ def initAll():
   except redis.ConnectionError:
     print "FATAL: cannot connect to redis."
     sys.exit()
-#  controlPlane.flushdb()
-#  dataPlane.flushdb()
+  controlPlane.flushdb()
+  dataPlane.flushdb()
 
 def scheduler(period,f,*args):
   def g_tick():

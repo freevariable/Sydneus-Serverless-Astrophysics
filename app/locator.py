@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 SYDNEUS='http://127.0.0.1:14799/v1'
-SHDEPTH=6
+SPDEPTH=6
 MODEPTH=5
 PLDEPTH=4
 SUDEPTH=3
@@ -100,6 +100,7 @@ class locator:
       self.parent=locator(pl)
 
   def cartesianize(self,ref):
+    print "cartesianizing "+self.name
     coords={}
     if self.dynamic is None:
       if self.static is not None:
@@ -108,11 +109,11 @@ class locator:
             self.x=0.0
             self.y=0.0
           elif ref=='se':
-            self.x=self.static['xly']*LY2KM
-            self.y=self.static['yly']*LY2KM
+            self.x=float(self.static['xly'])*LY2KM
+            self.y=float(self.static['yly'])*LY2KM
           elif ref=='gx':
-            self.x=self.static['xly']*LY2KM+float((self.static['x']-1)*SECTORWIDTH*LY2KM)
-            self.y=self.static['yly']*LY2KM+float((self.static['y']-1)*SECTORWIDTH*LY2KM)
+            self.x=float(self.static['xly'])*LY2KM+float((self.static['x']-1)*SECTORWIDTH*LY2KM)
+            self.y=float(self.static['yly'])*LY2KM+float((self.static['y']-1)*SECTORWIDTH*LY2KM)
           else:
             print "error in ref"
       else:
@@ -128,7 +129,7 @@ class locator:
       return coords
     if self.parent is not None:
       cs=self.parent.cartesianize(ref)   
-      if cs is not None:
+      if 'x' in cs:
         coords['x']=self.x+cs['x']
         coords['y']=self.y+cs['y']
       else:
@@ -164,6 +165,10 @@ class locator:
     if self.depth==PLDEPTH:
       url=SYDNEUS+'/get/pl/elements/'+user+'/'+path
 #      print "..."+str(url)
+    elif self.depth==MODEPTH:
+      url=SYDNEUS+'/get/mo/elements/'+user+'/'+path
+    elif self.depth==SPDEPTH:
+      url=SYDNEUS+'/get/spacecraft/elements/'+user+'/'+path
     else:
       url=None  
     if (url is not None):
@@ -194,6 +199,8 @@ class locator:
       url=SYDNEUS+'/get/pl/'+user+'/'+path
     elif self.depth==MODEPTH:
       url=SYDNEUS+'/get/mo/'+user+'/'+path
+    elif self.depth==SPDEPTH:
+      url=SYDNEUS+'/get/spacecraft/'+user+'/'+path
     else:
       url=None
 #      print "no url..."
@@ -210,15 +217,16 @@ class locator:
         print "error"
         return None      
     elif res is not None:
-      self.static=json.loads(res)
+      #self.static=json.loads(res)
+      self.static=res
       dataPlane.set(self.name,res)
 
 init()
 #a1=locator('600:140:4FN')
-a1=locator('600:140:7Oe:1')
+a1=locator('198:145:9w3')
 a1.refreshStack()
 #a1.debug()
-a2=locator('600:140:7Oe:6')
+a2=locator('600:140:4FN:1')
 a2.refreshStack()
 a2.debug()
 d=a1.dist(a2)
