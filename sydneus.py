@@ -119,9 +119,9 @@ def getEccAno(ano,ecc):
     aux=eccAno-ecc*math.sin(eccAno)
     if (abs(aux-ano)<0.001):
       exitCondition=True  
-      print "aux:"+str(aux)
-      print "ano:"+str(ano)
-      print "eccAno:"+str(eccAno)
+#      print "aux:"+str(aux)
+#      print "ano:"+str(ano)
+#      print "eccAno:"+str(eccAno)
     if (eccAno>TWOPI):
       exitCondition=True
       eccAno=-100.0
@@ -186,6 +186,33 @@ def elements(p,detailed):
 
 executor=ThreadPoolExecutor(max_workers=8)
 app=flask.Flask(__name__)
+
+@app.route("/v1/map/su/<pl>/<pmin>/<pmax>/<x>/<y>/<su>", methods=["GET"])
+def v1mapSu(pl,pmin,pmax,x,y,su):
+  global controlPlane
+  pMi=int(pmin)
+  pMa=int(pmax)
+  pls=plGen(x,y,su,None,pl)
+  p1={}
+  p1['minSmaAU']=1E10
+  p1['maxSmaAU']=0.0
+  for p in pls:
+    if (p['smaAU']>p1['maxSmaAU']):
+      p1['maxSmaAU']=p['smaAU']
+    if (p['smiAU']<p1['minSmaAU']):
+      p1['minSmaAU']=p['smaAU']
+  scalef=(pMa-pMi)/math.log10(p1['maxSmaAU']/p1['minSmaAU'])
+  pR={}
+  pR['logScale']=[]
+  pR['svg']={}
+  for p in pls:
+    e={}
+    span=p['smaAU']/p1['minSmaAU']
+    e['span']=pMi+scalef*math.log10(span)
+    e['rank']=p['rank']
+    el=elements(p,True)
+    pR['logScale'].append(e)     
+  return json.dumps(pR)
 
 @app.route("/v1/list/billing/<p>", methods=["GET"])
 def v1listBilling(p):

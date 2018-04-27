@@ -97,9 +97,10 @@ Each spacecraft must be identified by a unique string of your choice, beginning 
 We provide no support for bodies under impulsion. You may consider them as a transition between two idle states (two different locators).
 
 ## API Documentation
-We have three sets of APIs: procedural generation, realtime elements and management interface.
+We have four sets of APIs: procedural generation, realtime elements, cartography and management interface.
 - Procedural generation is fully cacheable. It is cached in a redis DB called dataPlane.
 - Realtime elements are not cached. They are interpolated from procedural generation items.
+- Cartography elements are not cached. 
 - Management data are cached in a redis DB called controlPlane.
 
 APIs of type **/v1/list/** return a JSON array (ie, a list of JSON objects).
@@ -117,6 +118,9 @@ APIs of type **/v1/get/** return a JSON object (ie, an unordered list of key/val
 - mo: a moon's rank within a planetary system (integer, 1=closest to the planet)
 - user: a unique user id that you manage (string)
 - spacecraft: a unique ship or station id that you manage (string)
+
+#### Epoch
+The time at which physical parameters were set (especially the mean anomaly and the day progress) is 0.0 by convention.
 
 #### Sectors
 
@@ -299,9 +303,7 @@ To be completed
 
 To be completed
 
-### Management API
-
-## Examples 
+## Examples
 
 ### Procedural generation
 
@@ -366,6 +368,7 @@ To be completed.
 To be completed.
 
 #### Spacecrafts
+
 We do not provide a **list/spacecraft** API, because we intend our API to be highly scalable. If you have tens of thousands of users, listing all spacecrafts orbiting a given sun would be a very bad architecture design.
 
 ##### Spacecraft in solar orbit
@@ -388,7 +391,6 @@ curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/3/2/Cromwell
 ```
 
 ### Realtime elements API
-Calls to this API are not cacheable.
 
 #### Real time orbital elements of a planet
 Example: get orbital elements of the planet orbiting sun RWh. The planet's rank 1 must be provided, even if it's alone in its solar system.
@@ -396,6 +398,23 @@ Example: get orbital elements of the planet orbiting sun RWh. The planet's rank 
 curl 'http://127.0.0.1:5043/v1/get/pl/elements/player4067/400/29/RWh/1'
 
 {"spinFormatted": "2h10m40s", "fromPer": "149d5h", "dayProgress": 0.3178352585976779, "toPer": "1y132d", "meanAno": 3.8622080878729736, "rho": 225397850.12794173, "progress": "23.08%", "localTimeFormatted": "41m32s", "theta": 2.4530273644516596, "periodFormatted": "1y281d", "localTime": 2492.086232658437}
+```
+
+#### Spacecrafts
+
+Unlike celestial bodies, the epoch is not 0.0 but the time when the spacecraft started its orbit.
+
+(To be completed...)
+
+### Cartography API
+
+#### Solar system map and image
+Get the planetary distribution and SVG rendering of system 9w3 over a logarithmic scale spread between pixels 10 and 300
+
+```
+curl 'http://127.0.0.1:5043/v1/map/su/player4067/10/300/198/145/9w3'
+
+{"logScale": [{"span": 10.0, "rank": 1}, {"span": 134.57648568274683, "rank": 2}, {"span": 196.49873621842647, "rank": 3}, {"span": 204.26638450469608, "rank": 4}, {"span": 225.0497219879097, "rank": 5}, {"span": 233.73016686825028, "rank": 6}, {"span": 248.63731668832162, "rank": 7}, {"span": 287.8319534128117, "rank": 8}, {"span": 300.0, "rank": 9}], "svg": {}}
 ```
 
 ### Management API
