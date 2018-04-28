@@ -263,8 +263,9 @@ def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 def v1getPlElements(x,y,su,pl,p):
   ap=plGen(x,y,su,pl,p)
   print "AP"
-  print ap['period']
-  return json.dumps(elements(ap,True))
+  print ap[0]
+  print ap[0]['period']
+  return json.dumps(elements(ap[0],True))
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):

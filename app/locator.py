@@ -105,6 +105,8 @@ class locator:
     if self.dynamic is None:
       if self.static is not None:
         if 'xly' in self.static:
+          print "STATIC"
+          print self.static
           if ref=='su':
             self.x=0.0
             self.y=0.0
@@ -158,13 +160,11 @@ class locator:
     res=dataPlane.get(self.name)
     if res is None:  #item was evicted from cache, we put it back
       dataPlane.set(self.name,json.dumps(self.static))
-    res=self.static
+#    res=self.static
     path=self.name
     path=path.replace(":","/")
-#    print "refreshing: "+self.name+" at depth: "+str(self.depth)
     if self.depth==PLDEPTH:
       url=SYDNEUS+'/get/pl/elements/'+user+'/'+path
-#      print "..."+str(url)
     elif self.depth==MODEPTH:
       url=SYDNEUS+'/get/mo/elements/'+user+'/'+path
     elif self.depth==SPDEPTH:
@@ -196,9 +196,11 @@ class locator:
     if self.depth==SUDEPTH:
       url=SYDNEUS+'/get/su/'+user+'/'+path
     elif self.depth==PLDEPTH:
-      url=SYDNEUS+'/get/pl/'+user+'/'+path
+      path0=path.split("/")
+      url=SYDNEUS+'/list/pl/'+user+'/'+path0[0]+'/'+path0[1]+'/'+path0[2]
     elif self.depth==MODEPTH:
-      url=SYDNEUS+'/get/mo/'+user+'/'+path
+      path0=path.split("/")
+      url=SYDNEUS+'/list/mo/'+user+'/'+path0[0]+'/'+path0[1]+'/'+path0[2]+'/'+path0[3]
     elif self.depth==SPDEPTH:
       url=SYDNEUS+'/get/spacecraft/'+user+'/'+path
     else:
@@ -212,16 +214,28 @@ class locator:
         r1=json.loads(rss)
 #        print r1
         self.static=r1
+        dataPlane.set(self.name,rss)
 #        print "==="
       except urllib2.HTTPError, e:
         print "error"
         return None      
     elif res is not None:
       #self.static=json.loads(res)
-      self.static=res
-      dataPlane.set(self.name,res)
+      self.static=json.loads(res)
+#      dataPlane.set(self.name,res)
+
+class artificial:
+  name=''
+  loc=locator;
+
+  def __init__(self,name):
+   global dataPlane
+   global user
+   self.name=name
+   self.loc=locator(self.name)
 
 init()
+art=artificial('198:145:9w3')
 #a1=locator('600:140:4FN')
 a1=locator('198:145:9w3')
 a1.refreshStack()
