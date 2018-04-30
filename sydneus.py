@@ -255,6 +255,12 @@ def v1getSunWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
 def v1getPl(x,y,su,p):
   return json.dumps(plGen(x,y,su,None,p))
 
+@app.route("/v1/list/mo/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
+def v1getMo(x,y,su,pl,p):
+  aP=plGen(x,y,su,pl,p)
+  print aP['mo']
+  return json.dumps(aP['mo'])
+
 @app.route("/v1/list/pl/<p>/<x>/<y>/<su>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
 def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   return json.dumps(plGenWithPoW(x,y,su,None,suseed,sucls,sux,suy,proof,p))
@@ -262,10 +268,30 @@ def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 @app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPlElements(x,y,su,pl,p):
   ap=plGen(x,y,su,pl,p)
-  print "AP"
-  print ap[0]
-  print ap[0]['period']
-  return json.dumps(elements(ap[0],True))
+  if pl=='*':
+    print ap[0]
+    print ap[0]['period']
+    return json.dumps(elements(ap[0],True))
+  else:
+    print ap
+    print ap['period']
+    return json.dumps(elements(ap,True))
+
+@app.route("/v1/get/mo/elements/<p>/<x>/<y>/<su>/<pl>/<mo>", methods=["GET"])
+def v1getMoElements(x,y,su,pl,mo,p):
+  ap=plGen(x,y,su,pl,p)
+  if mo=='*':
+    print ap['mo'][0]
+    print ap['mo'][0]['period']
+    return json.dumps(elements(ap['mo'][0],True))
+  else:
+    moNum=int(mo)
+    print ap['mo']
+    for m in ap['mo']:
+      if m['rank']==moNum:
+        print m['period']
+        return json.dumps(elements(m,True))
+    abort(404)
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):
