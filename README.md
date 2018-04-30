@@ -231,9 +231,11 @@ A JSON **list** of 0 or more planets with the following elements:
 |per       |0.87874  | Periapsis (in radians)                             |
 |ano       |4.42784  | Anomaly at epoch                                   |
 |hill      |153...   | Radius of Hill sphere (in km)                      |
+|roche     |153...   | Roche limit in km)                                 |
 |spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
 |period    |453...   | Orbital period in seconds                          |
 |dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
+|mo        |         | JSON list of moons                                 |
 
 #### Moons
 
@@ -245,9 +247,31 @@ A JSON **list** of 0 or more planets with the following elements:
 
 ##### Response elements
 
-To be completed
+A JSON **list** of 0 or more planets with the following elements:
 
-Notes: moons out of hydrostatic equilibrium (ie small bodies of about less than 400km diameter) and bodies within Roche limit will not be generated.
+|Key       | Value   | Comment                                            |
+|----------|---------|----------------------------------------------------|
+|rank      |11       | Moon rank within planetary system                  |
+|cls       |J        | Terran     (E) or Jovian (J)                       |
+|g         |12.6057  | Surface gravity  (Earth=9.81)                      |
+|mEA       |5.36242  | Earth mass (Earth=1.0)                             |
+|radEA     |2.0416   | Earth radius (Earth=1.0)                           |
+|denEA     |0.62789  | Earth density (Earth=1.0)                          |
+|hasAtm    |True     | Has an atmosphere                                  |
+|isLocked  |True     | Spin is locked                                     |
+|isIrr     |False    | Is within sun radiation zone                       |
+|inHZ      |False    | Is in Habitable Zone                               |
+|smiAU     |763.662  | Semi-minor axis in AU                              |
+|smaAU     |763.675  | Semi-major axis in AU                              |
+|ecc       |0.00574  | Eccentricity                                       |
+|per       |0.87874  | Periapsis (in radians)                             |
+|ano       |4.42784  | Anomaly at epoch                                   |
+|hill      |153...   | Radius of Hill sphere (in km)                      |
+|roche     |153...   | Roche limit in km)                                 |
+|spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
+|period    |453...   | Orbital period in seconds                          |
+|dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
+
 
 ### Realtime API
 

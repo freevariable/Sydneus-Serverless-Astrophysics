@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 SYDNEUS='http://127.0.0.1:14799/v1'
-SPDEPTH=6
+SCDEPTH=6
 MODEPTH=5
 PLDEPTH=4
 SUDEPTH=3
@@ -167,8 +167,6 @@ class locator:
       url=SYDNEUS+'/get/pl/elements/'+user+'/'+path
     elif self.depth==MODEPTH:
       url=SYDNEUS+'/get/mo/elements/'+user+'/'+path
-    elif self.depth==SPDEPTH:
-      url=SYDNEUS+'/get/spacecraft/elements/'+user+'/'+path
     else:
       url=None  
     if (url is not None):
@@ -201,7 +199,7 @@ class locator:
     elif self.depth==MODEPTH:
       path0=path.split("/")
       url=SYDNEUS+'/list/mo/'+user+'/'+path0[0]+'/'+path0[1]+'/'+path0[2]+'/'+path0[3]
-    elif self.depth==SPDEPTH:
+    elif self.depth==SCDEPTH:
       url=SYDNEUS+'/get/spacecraft/'+user+'/'+path
     else:
       url=None
@@ -224,7 +222,7 @@ class locator:
       self.static=json.loads(res)
 #      dataPlane.set(self.name,res)
 
-class artificial:
+class sc:
   name=''
   loc=locator;
 
@@ -235,7 +233,7 @@ class artificial:
    self.loc=locator(self.name)
 
 init()
-art=artificial('198:145:9w3')
+art=sc('198:145:9w3')
 #a1=locator('600:140:4FN')
 a1=locator('198:145:9w3')
 a1.refreshStack()

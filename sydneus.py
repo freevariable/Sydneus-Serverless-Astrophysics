@@ -412,10 +412,15 @@ def plGen(x,y,su,pl,p):
         flask.abort(404)
 #        return status.HTTP_404_NOT_FOUND
       billingDot(p,verb,rs.getcode())
-      for aP in r1:
-        cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+      if pl=='*':
+        for aP in r1:
+          cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+          print cacheLocator
+          dataPlane.set(cacheLocator,json.dumps(aP))
+      else:
+        cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(r1['rank'])
         print cacheLocator
-        dataPlane.set(cacheLocator,json.dumps(aP))
+        dataPlane.set(cacheLocator,json.dumps(r1))
       return r1
     except urllib2.HTTPError, e:
       flask.abort(503)
