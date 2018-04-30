@@ -216,6 +216,7 @@ A JSON **list** of 0 or more planets with the following elements:
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
 |rank      |11       | Planet rank within system                          |
+|nbMo      |5        | Quantity of moons                                  |
 |cls       |J        | Terran     (E) or Jovian (J)                       |
 |g         |12.6057  | Surface gravity  (Earth=9.81)                      |
 |mEA       |5.36242  | Earth mass (Earth=1.0)                             |
@@ -235,7 +236,6 @@ A JSON **list** of 0 or more planets with the following elements:
 |spin      |-0.1901  | Rotation (Earth=1.0=24h). Negative for retrograde  |
 |period    |453...   | Orbital period in seconds                          |
 |dayProg   |0.89799  | Day progress at epoch (1.0=midnight) ref meridian  |
-|mo        |         | JSON list of moons                                 |
 
 #### Moons
 
@@ -247,7 +247,7 @@ A JSON **list** of 0 or more planets with the following elements:
 
 ##### Response elements
 
-A JSON **list** of 0 or more planets with the following elements:
+A JSON **list** of 0 or more moons with the following elements:
 
 |Key       | Value   | Comment                                            |
 |----------|---------|----------------------------------------------------|
@@ -309,11 +309,23 @@ In Sydneus, **stars are static**.
 
 ##### Request parameters
 
-To be completed
+```
+/v1/get/mo/elements/<user>/<sectorX>/<sectorY>/<trigram>/<pl>/<mo>
+```
 
 ##### Response elements
 
-To be completed
+|Key            | Value     | Comment                                            |
+|---------------|-----------|----------------------------------------------------|
+|spinFormatted  |-4h33m44s  |Negative means retrograde                           |
+|dayProgress    |0.89799    |Day progress now (same as at epoch if locked)       |
+|localTime      |4h5m49s    |Time now at ref meridian                            |
+|fromPer        |2238y      |Time from periapsis                                 |
+|to  Per        |12130y     |Time to periapsis                                   |
+|progress       |15.58%     |Orbital period progress                             |
+|meanAno        |4.436726   |Mean Anomaly (realtime) in radians                  |
+|rho            |11442...   |Polar distance from sun (realtime) in km            |
+|theta          |1.857695   |Polar angle (realtime) in radians                   |
 
 ## Examples
 

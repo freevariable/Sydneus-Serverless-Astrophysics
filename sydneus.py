@@ -253,13 +253,23 @@ def v1getSunWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
 
 @app.route("/v1/list/pl/<p>/<x>/<y>/<su>", methods=["GET"])
 def v1getPl(x,y,su,p):
-  return json.dumps(plGen(x,y,su,None,p))
+  pls=plGen(x,y,su,'*',p)
+  if len(pls)<1: 
+    flask.abort(404)
+  for aP in pls:
+    aP['nbMo']=len(aP['mo'])
+    del aP['mo']
+  return json.dumps(pls)
 
 @app.route("/v1/list/mo/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getMo(x,y,su,pl,p):
-  aP=plGen(x,y,su,pl,p)
-  print aP['mo']
-  return json.dumps(aP['mo'])
+  pls=plGen(x,y,su,'*',p)
+  if len(pls)<1: 
+    flask.abort(404)
+  for aP in pls:
+    if aP['rank']==int(pl):
+      return json.dumps(aP['mo'])
+  abort(404)
 
 @app.route("/v1/list/pl/<p>/<x>/<y>/<su>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
 def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
@@ -433,7 +443,13 @@ def plGen(x,y,su,pl,p):
       rss=rs.read()
       r1=json.loads(rss)
       if len(rss)>5:
-        dataPlane.set(cacheLocator,rss)
+        if pl=='*':
+          dataPlane.set(cacheLocator,rss)
+          for aP in r1:
+            cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
+            dataPlane.set(cacheLocator,json.dumps(aP))
+        else:
+          dataPlane.set(cacheLocator,rss)
       else:
         flask.abort(404)
 #        return status.HTTP_404_NOT_FOUND

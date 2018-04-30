@@ -24,15 +24,31 @@ LY2KM=9.4607E12
 LY2AU=63241.0
 TWOPI=6.28318530718
 SECTORWIDTH=9
+SUKG=1.99855E30
+EAKG=5.97237E24
+PISQUARE=9.86960440109
+G=6.67408E-11 
 
 dataPlaneId=6
 controlPlaneId=7
 user='admin'
 
-import urllib2,redis,sys,json,math
+import urllib2,redis,sys,json,math,re
+import time,uuid
+
+def getOrbPeriod(sma,M):  
+  a3=math.pow(sma*1000,3.0) 
+  P2=a3*4*PISQUARE/(G*M)
+  P=math.sqrt(P2)
+  return P
+
+def smi2sma(smi,e):
+  return smi/math.sqrt(1-e*e)
 
 def init():
   global dataPlane
+  global t
+  t=time.time()
   dataPlane=redis.StrictRedis(host='localhost', port=6379, db=dataPlaneId)
   try:
     answ=dataPlane.client_list()
@@ -226,19 +242,42 @@ class sc:
   name=''
   loc=locator;
 
-  def __init__(self,name):
-   global dataPlane
-   global user
-   self.name=name
-   self.loc=locator(self.name)
+  def __init__(self,name,parentLocatorName,ecc,smi,per,epoch,ano,spin,locked):
+    global dataPlane
+    global user
+    self.name=name
+    self.loc=locator(parentLocatorName+':'+name)
+    static={}
+    static['epoch']=t
+    static['dayProgressAtEpoch']=1.0
+    static['ano']=ano
+    static['ecc']=ecc
+    static['spin']=spin
+    static['isLocked']=locked
+    static['smi']=smi
+    static['sma']=smi2sma(smi,ecc)
+    if 'mEA' in self.loc.parent.static:
+      static['period']=getOrbPeriod(static['sma'],self.loc.parent.static['mEA']*EAKG)
+    elif 'mSU' in self.loc.parent.static:
+      static['period']=getOrbPeriod(static['sma'],self.loc.parent.static['mSU']*SUKG)
+    self.loc.static=static
+#   regex=r":([a-zA-Z0-9\-]+)$"
+#   match=re.search(regex,name)
+#   self.name=match.group(1)
+#   parentLocator=name.replace(match.group(0),"")
+#   print parentLocator
+   #self.loc=locator(self.name)
 
 init()
-art=sc('198:145:9w3')
+art1=sc('Harfang','198:145:9w3',0.0,150000,0.0,t,0.0,0.0,True)
+art2=sc('Cromwell','600:140:vFT:1',0.0,200000,0.0,t,0.0,0.0,True)
+print art2.loc.static
+sys.exit()
 #a1=locator('600:140:4FN')
 a1=locator('198:145:9w3')
 a1.refreshStack()
 #a1.debug()
-a2=locator('600:140:4FN:1')
+a2=locator('600:140:vFT:1')
 a2.refreshStack()
 a2.debug()
 d=a1.dist(a2)
