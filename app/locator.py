@@ -33,8 +33,149 @@ dataPlaneId=6
 controlPlaneId=7
 user='admin'
 
+stas=[]
+
 import urllib2,redis,sys,json,math,re
 import time,uuid
+import cPickle as pickle
+
+def ff(f):
+  return "%.2f" % f
+
+def getEccAno(ano,ecc):
+  exitCondition=False
+  eccAno=0.0
+  while exitCondition==False:
+    aux=eccAno-ecc*math.sin(eccAno)
+    if (abs(aux-ano)<0.001):
+      exitCondition=True
+    if (eccAno>TWOPI):
+      exitCondition=True
+      eccAno=-100.0
+    if exitCondition==False:
+      eccAno=eccAno+0.001
+  return eccAno
+
+def getTheta(eccAno,ecc):
+  aux=(1+ecc)*math.tan(eccAno/2.0)*math.tan(eccAno/2.0)/(1-ecc)
+  aux=math.sqrt(aux)
+  trueAno=2.0*math.atan(aux)
+  return trueAno
+
+def getRho(sma,ecc,eccAno):
+  return sma*(1.0-ecc*math.cos(eccAno))
+
+def prettyDelta(t1,t2):
+  delta=int(t2-t1)
+  zeroing=False
+  ignoredays=False
+  ignoresubdays=False
+  ignoreminutes=False
+  ignoreseconds=False
+  p={}
+  y=int(delta/31536000)
+  if (y>0):
+    p['y']=y
+    ignoresubdays=True
+    if (y>900):
+      ignoredays=True
+  else:
+    zeroing=True
+  if (ignoredays):
+    return p
+  aux=delta-y*31536000
+  d=int(aux/86400)
+  if (d>0):
+    p['d']=d
+    zeroing=False
+    ignoreseconds=True
+    if (d>30):
+      ignoreminutes=True
+  else:
+    if (zeroing==False):
+      p['d']=d
+  if (ignoresubdays):
+    return p
+#  p['h']=delta.hours
+#  p['m']=delta.minutes
+  aux=aux-d*86400
+  h=int(aux/3600)
+  if (h>0):
+    p['h']=h
+    zeroing=False
+  else:
+    if (zeroing==False):
+      p['h']=h
+  if (ignoreminutes):
+    return p
+  aux=aux-h*3600
+  m=int(aux/60)
+  if (m>0):
+    p['m']=m
+  else:
+    if (zeroing==False):
+      p['m']=m
+  if (ignoreseconds):
+    return p
+  p['s']=aux-m*60
+  return p
+
+def prettyDeltaCompact(t1,t2):
+  p=prettyDelta(t1,t2)
+  pdc=''
+  if ('y' in p):
+    pdc=pdc+str(p['y'])+'y'
+  if ('d' in p):
+    pdc=pdc+str(p['d'])+'d'
+  if ('h' in p):
+    pdc=pdc+str(p['h'])+'h'
+  if ('m' in p):
+    pdc=pdc+str(p['m'])+'m'
+  if ('s' in p):
+    pdc=pdc+str(p['s'])+'s'
+  return pdc
+
+def elements(p,detailed):
+  t=time.time()-883612799.0
+  if 'epoch' in p:
+    epoch=p['epoch']  #satellites and vessels
+  else:
+    epoch=0.0  #all celestial bodies
+  deltat=t-epoch
+  deltap=deltat/p['period']
+  if p['spin']>0.0:
+    deltar=deltat/(p['spin']*86400.0)
+  else:
+    deltar=0.0
+  deltaa=TWOPI*deltap
+  deltab=deltar-math.floor(deltar)
+  e={}
+  e['dayProgress']=p['dayProgressAtEpoch']+deltab
+  if e['dayProgress']>1.0:
+    e['dayProgress']=e['dayProgress']-1.0
+  e['localTime']=abs(e['dayProgress']*p['spin']*86400.0)
+  e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
+  e['meanAno']=(p['ano']+deltaa)%TWOPI
+  eccAno=getEccAno(e['meanAno'],p['ecc'])
+  e['rho']=getRho(p['sma'],p['ecc'],eccAno)
+  e['theta']=getTheta(eccAno,p['ecc'])
+  if (e['theta']>p['per']):
+    progress=e['theta']-p['per']
+  else:
+    progress=p['per']-e['theta']
+  timeToPer=p['period']*(TWOPI-progress)/TWOPI
+  timeFromPer=p['period']*progress/TWOPI
+  dateTimeToPer=prettyDeltaCompact(0.0,timeToPer)
+  dateTimeFromPer=prettyDeltaCompact(0.0,timeFromPer)
+  e['progress']=str(ff(100*progress/TWOPI))+'%'
+  e['toPer']=dateTimeToPer
+  e['fromPer']=dateTimeFromPer
+  if detailed:
+    e['periodFormatted']=prettyDeltaCompact(0.0,p['period'])
+    e['spinFormatted']=prettyDeltaCompact(0.0,abs(p['spin']*86400.0))
+    if p['spin']<0.0:
+      e['spinFormatted']='-'+e['spinFormatted']
+  return e
 
 def getOrbPeriod(sma,M):  
   a3=math.pow(sma*1000,3.0) 
@@ -48,6 +189,7 @@ def smi2sma(smi,e):
 def init():
   global dataPlane
   global t
+  global stas
   t=time.time()
   dataPlane=redis.StrictRedis(host='localhost', port=6379, db=dataPlaneId)
   try:
@@ -55,6 +197,15 @@ def init():
   except redis.ConnectionError:
     print "FATAL: cannot connect to redis."
     sys.exit()
+
+def loads():
+  global stas
+  stas=pickle.load(open("stations.pickle","rb"))
+  for s in stas:
+    s.loc.refreshStack()
+    print s.loc.static
+    print s.loc.dynamic
+    print " "
 
 class locator:
   name=''
@@ -169,6 +320,7 @@ class locator:
   def refreshStack(self):
     global dataPlane
     global user
+#    print "refreshing "+self.name+" at depth "+str(self.depth)
     if self.depth<=SEDEPTH:
       return None
     if self.parent is not None:
@@ -179,6 +331,14 @@ class locator:
 #    res=self.static
     path=self.name
     path=path.replace(":","/")
+    regex=r"/([a-zA-Z0-9\-]+)$"
+    match=re.search(regex,path)
+#    print "MATCH"
+#    print match
+    if (match is not None) and (len(match.group(1))>3):
+#      print "match found!! "+str(match.group(1))+" "+str(len(match.group(1)))
+      self.dynamic=elements(self.static,True)
+      return None
     if self.depth==PLDEPTH:
       url=SYDNEUS+'/get/pl/elements/'+user+'/'+path
     elif self.depth==MODEPTH:
@@ -252,14 +412,18 @@ class sc:
     static['dayProgressAtEpoch']=1.0
     static['ano']=ano
     static['ecc']=ecc
-    static['spin']=spin
     static['isLocked']=locked
     static['smi']=smi
     static['sma']=smi2sma(smi,ecc)
+    static['per']=per
     if 'mEA' in self.loc.parent.static:
       static['period']=getOrbPeriod(static['sma'],self.loc.parent.static['mEA']*EAKG)
     elif 'mSU' in self.loc.parent.static:
       static['period']=getOrbPeriod(static['sma'],self.loc.parent.static['mSU']*SUKG)
+    if locked:
+      static['spin']=static['period']/86400.0
+    else:
+      static['spin']=spin
     self.loc.static=static
 #   regex=r":([a-zA-Z0-9\-]+)$"
 #   match=re.search(regex,name)
@@ -267,11 +431,22 @@ class sc:
 #   parentLocator=name.replace(match.group(0),"")
 #   print parentLocator
    #self.loc=locator(self.name)
-
 init()
-art1=sc('Harfang','198:145:9w3',0.0,150000,0.0,t,0.0,0.0,True)
-art2=sc('Cromwell','600:140:vFT:1',0.0,200000,0.0,t,0.0,0.0,True)
-print art2.loc.static
+loads()
+
+def saves():
+  global stas
+  art1=sc('Harfang','198:145:9w3',0.0,150000,0.0,t,0.0,0.0,True)
+  stas.append(art1)
+  art2=sc('Cromwell','600:140:vFT:1',0.0,200000,0.0,t,0.0,0.0,True)
+  stas.append(art2)
+  art2.loc.refreshStack()
+  print art2.loc.dynamic
+  pickle.dump(stas,open("stations.pickle","wb"))
+  #print art2.loc.dynamic
+
+#saves()
+
 sys.exit()
 #a1=locator('600:140:4FN')
 a1=locator('198:145:9w3')
