@@ -439,7 +439,7 @@ def saves():
   global stas
   art1=sc('Harfang','198:145:9w3',0.0208,150000,0.0,t,0.0,0.0,True)
   stas.append(art1)
-  art2=sc('Cromwell','198:145:9w3',0.74131,155000,0.0,t,0.0,0.0,True)
+  art2=sc('Cromwell','198:145:9w3',0.74131,150005,0.0,t,0.0,0.0,True)
   stas.append(art2)
   art2.loc.refreshStack()
   pickle.dump(stas,open("stations.pickle","wb"))
@@ -450,7 +450,7 @@ while True:
   d=stas[0].loc.dist(stas[1].loc)
   print "Current distance between Harfang and Cromwell (km)"
   print str(d*AU2KM)+"km, "+str(stas[0].loc.dynamic['theta'])+" "+str(stas[1].loc.dynamic['theta'])
-  time.sleep(2.0)
+  time.sleep(1.0)
   for s in stas:
     s.loc.refreshStack()
 #print d

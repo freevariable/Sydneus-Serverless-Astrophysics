@@ -217,6 +217,53 @@ def v1mapSu(pl,pmin,pmax,x,y,su):
     pR['logScale'].append(e)     
   return json.dumps(pR)
 
+@app.route("/v1/map/pl/<pl>/<pmin>/<pmax>/<x>/<y>/<su>/<p>", methods=["GET"])
+def v1mapPl(pl,pmin,pmax,x,y,su,p):
+  global controlPlane
+  pMi=int(pmin)
+  pMa=int(pmax)
+  pls=plGen(x,y,su,None,pl)
+  prk=int(p)
+  found=False
+  for pl in pls:
+    if pl['rank']==prk:
+      found=True
+      break
+  if found==False:
+    flask.abort(404)
+  if len(pl['mo'])<1:
+    flask.abort(404)
+  m1={}
+  m1['minSmaAU']=1E10
+  m1['maxSmaAU']=0.0
+  for m in pl['mo']:
+    if (m['smaAU']>m1['maxSmaAU']):
+      m1['maxSmaAU']=m['smaAU']
+    if (m['smiAU']<m1['minSmaAU']):
+      m1['minSmaAU']=m['smaAU']
+  if m1['maxSmaAU']==m1['minSmaAU']:
+    scalef=1.0
+  else:
+    scalef=(pMa-pMi)/math.log10(m1['maxSmaAU']/m1['minSmaAU'])
+  mR={}
+  mR['logScale']=[]
+  mR['svg']='<svg viewBox="0 0 '+pmax+" "+pmax+'" xmlns="http://www.w3.org/2000/svg">'
+  pmax2=str(int(pMa/2))
+  for m in pl['mo']:
+    e={}
+    span=m['smaAU']/m1['minSmaAU']
+    e['span']=pMi+scalef*math.log10(span)
+    e['rank']=m['rank']
+    el=elements(m,True)
+    mR['logScale'].append(e)     
+    eX=str(int(pMa/2+e['span']*0.5*(el['rho']*math.cos(el['theta'])/m['sma'])))
+    eY=str(int(pMa/2+e['span']*0.5*(el['rho']*math.sin(el['theta'])/m['sma'])))
+#    mR['svg']=mR['svg']+'<ellipse cx="'+pmax2+'" cy="'+pmax2+'" rx="'+eX+'" ry="'+eY+'" />'
+    eR=str(int(pMa/2+e['span']*0.5))
+    mR['svg']=mR['svg']+'<circle cx="'+pmax2+'" cy="'+pmax2+'" r="'+eR+'" />'
+  mR['svg']=mR['svg']+'</svg>'
+  return json.dumps(mR)
+
 @app.route("/v1/list/billing/<p>", methods=["GET"])
 def v1listBilling(p):
   global controlPlane
