@@ -65,6 +65,9 @@ def getTheta(eccAno,ecc):
 def getRho(sma,ecc,eccAno):
   return sma*(1.0-ecc*math.cos(eccAno))
 
+def getRho2(smi,theta,ecc):
+  return smi/(math.sqrt(1-(ecc*ecc*math.cos(theta)*math.cos(theta))))
+
 def prettyDelta(t1,t2):
   delta=int(t2-t1)
   zeroing=False
@@ -157,8 +160,9 @@ def elements(p,detailed):
   e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
   e['meanAno']=(p['ano']+deltaa)%TWOPI
   eccAno=getEccAno(e['meanAno'],p['ecc'])
-  e['rho']=getRho(p['sma'],p['ecc'],eccAno)
   e['theta']=getTheta(eccAno,p['ecc'])
+#  e['rho']=getRho(p['smi'],p['ecc'],eccAno)
+  e['rho']=getRho2(p['smi'],e['theta'],p['ecc'])
   if (e['theta']>p['per']):
     progress=e['theta']-p['per']
   else:
@@ -449,8 +453,15 @@ def saves():
 while True:
   d=stas[0].loc.dist(stas[1].loc)
   print "Current distance between Harfang and Cromwell (km)"
-  print str(d*AU2KM)+"km, "+str(stas[0].loc.dynamic['theta'])+" "+str(stas[1].loc.dynamic['theta'])
-  time.sleep(1.0)
+  dAU=d*AU2KM
+  print str(ff(dAU))+"km, "+str(ff(stas[0].loc.dynamic['theta']))+","+str(ff(stas[1].loc.dynamic['theta']))+"  "+str(ff(stas[0].loc.dynamic['rho']))+","+str(ff(stas[1].loc.dynamic['rho']))
+  if dAU<10500.0:
+    slp=0.1
+  if dAU<600.0:
+    slp=0.01
+  else:
+    slp=1.0
+  time.sleep(slp)
   for s in stas:
     s.loc.refreshStack()
 #print d

@@ -136,8 +136,11 @@ def getTheta(eccAno,ecc):
 #  print trueAno
   return trueAno
 
-def getRho(sma,ecc,eccAno):
-  return sma*(1.0-ecc*math.cos(eccAno)) 
+#def getRho(sma,ecc,eccAno):
+#  return sma*(1.0-ecc*math.cos(eccAno)) 
+
+def getRho2(smi,theta,ecc):
+  return smi/(math.sqrt(1-(ecc*ecc*math.cos(theta)*math.cos(theta))))
 
 def elements(p,detailed):
   t=time.time()-883612799.0
@@ -163,8 +166,9 @@ def elements(p,detailed):
   e['localTimeFormatted']=prettyDeltaCompact(0.0,e['localTime'])
   e['meanAno']=(p['ano']+deltaa)%TWOPI
   eccAno=getEccAno(e['meanAno'],p['ecc'])
-  e['rho']=getRho(p['smaAU']*AU2KM,p['ecc'],eccAno)
   e['theta']=getTheta(eccAno,p['ecc'])
+#  e['rho']=getRho(p['smaAU']*AU2KM,p['ecc'],eccAno)
+  e['rho']=getRho2(p['smiAU']*AU2KM,e['theta'],p['ecc'])
   if (e['theta']>p['per']):
     progress=e['theta']-p['per']
   else:
