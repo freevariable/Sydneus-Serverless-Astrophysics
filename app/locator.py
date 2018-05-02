@@ -36,7 +36,7 @@ user='admin'
 stas=[]
 
 import urllib2,redis,sys,json,math,re
-import time,uuid
+import time
 import cPickle as pickle
 
 def ff(f):
@@ -230,12 +230,13 @@ class locator:
     ns2=l2.name.split(":")
     depthMin=min(self.depth,l2.depth)
     depthDelta=abs(self.depth-l2.depth)
-    print "depthMin: "+str(depthMin)
-    print "depthDelta: "+str(depthDelta)
+#    print "depthMin: "+str(depthMin)
+#    print "depthDelta: "+str(depthDelta)
     if ((ns1[0]==ns2[0]) and (ns1[1]==ns2[1])):
-      print "same sector"
+#      print "same sector"
       if (ns1[2]==ns2[2]):
-        print "same su"
+#        print "same su"
+       nop=''
       else:
         interSu=True
     else:
@@ -267,13 +268,13 @@ class locator:
       self.parent=locator(pl)
 
   def cartesianize(self,ref):
-    print "cartesianizing "+self.name
+#    print "cartesianizing "+self.name
     coords={}
     if self.dynamic is None:
       if self.static is not None:
         if 'xly' in self.static:
-          print "STATIC"
-          print self.static
+#          print "STATIC"
+#          print self.static
           if ref=='su':
             self.x=0.0
             self.y=0.0
@@ -436,25 +437,21 @@ loads()
 
 def saves():
   global stas
-  art1=sc('Harfang','198:145:9w3',0.0,150000,0.0,t,0.0,0.0,True)
+  art1=sc('Harfang','198:145:9w3',0.0208,150000,0.0,t,0.0,0.0,True)
   stas.append(art1)
-  art2=sc('Cromwell','600:140:vFT:1',0.0,200000,0.0,t,0.0,0.0,True)
+  art2=sc('Cromwell','198:145:9w3',0.74131,155000,0.0,t,0.0,0.0,True)
   stas.append(art2)
   art2.loc.refreshStack()
-  print art2.loc.dynamic
   pickle.dump(stas,open("stations.pickle","wb"))
-  #print art2.loc.dynamic
 
 #saves()
 
-sys.exit()
-#a1=locator('600:140:4FN')
-a1=locator('198:145:9w3')
-a1.refreshStack()
-#a1.debug()
-a2=locator('600:140:vFT:1')
-a2.refreshStack()
-a2.debug()
-d=a1.dist(a2)
-print d
-print d/LY2AU
+while True:
+  d=stas[0].loc.dist(stas[1].loc)
+  print "Current distance between Harfang and Cromwell (km)"
+  print str(d*AU2KM)+"km, "+str(stas[0].loc.dynamic['theta'])+" "+str(stas[1].loc.dynamic['theta'])
+  time.sleep(2.0)
+  for s in stas:
+    s.loc.refreshStack()
+#print d
+#print d/LY2AU
