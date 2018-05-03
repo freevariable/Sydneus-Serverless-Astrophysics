@@ -34,6 +34,8 @@ controlPlaneId=7
 user='admin'
 
 stas=[]
+t=0.0
+t_inc=0.1
 
 import urllib2,redis,sys,json,math,re
 import time
@@ -139,7 +141,10 @@ def prettyDeltaCompact(t1,t2):
   return pdc
 
 def elements(p,detailed):
-  t=time.time()-883612799.0
+  global t
+  global t_inc
+  t=t+t_inc
+#  t=time.time()-883612799.0
   if 'epoch' in p:
     epoch=p['epoch']  #satellites and vessels
   else:
@@ -437,32 +442,56 @@ class sc:
 #   print parentLocator
    #self.loc=locator(self.name)
 init()
-loads()
 
 def saves():
   global stas
   art1=sc('Harfang','198:145:9w3',0.0208,150000,0.0,t,0.0,0.0,True)
   stas.append(art1)
-  art2=sc('Cromwell','198:145:9w3',0.74131,150005,0.0,t,0.0,0.0,True)
+  art2=sc('Cromwell','198:145:9w3',0.79131,150005,0.0,t,0.0,0.0,True)
   stas.append(art2)
   art2.loc.refreshStack()
   pickle.dump(stas,open("stations.pickle","wb"))
 
-#saves()
+saves()
+loads()
+
+initTheta=stas[0].loc.dynamic['theta']
+orbCnt=-1
+trans=False
+cnt=0
 
 while True:
+  cnt=cnt+1
   d=stas[0].loc.dist(stas[1].loc)
-  print "Current distance between Harfang and Cromwell (km)"
   dAU=d*AU2KM
-  print str(ff(dAU))+"km, "+str(ff(stas[0].loc.dynamic['theta']))+","+str(ff(stas[1].loc.dynamic['theta']))+"  "+str(ff(stas[0].loc.dynamic['rho']))+","+str(ff(stas[1].loc.dynamic['rho']))
-  if dAU<10500.0:
-    slp=0.1
-  if dAU<600.0:
-    slp=0.01
+#  if cnt%100==0:
+#    print ff(dAU)+" "+str(orbCnt)+" "+str(t_inc)+" "+str((stas[0].loc.dynamic['theta']))
+#  print "Current distance between Harfang and Cromwell (km)"
+#  print str(ff(dAU))+"km, "+str(ff(stas[0].loc.dynamic['theta']))+","+str(ff(stas[1].loc.dynamic['theta']))+"  "+str(ff(stas[0].loc.dynamic['rho']))+","+str(ff(stas[1].loc.dynamic['rho']))
+  oldtinc=t_inc
+  if dAU>100000.0:
+    t_inc=20.0
+  elif dAU>22000.0: 
+    t_inc=2.0   
+  elif dAU>3000.0: 
+    t_inc=0.1  
+  elif dAU>950.0: 
+    t_inc=0.03   
   else:
-    slp=1.0
-  time.sleep(slp)
+    t_inc=0.001
+    if t_inc<oldtinc:
+      print str(orbCnt)+" "+ff(dAU)
+#    time.sleep(1.0)
+#  time.sleep(slp)
   for s in stas:
-    s.loc.refreshStack()
+#    s.loc.refreshStack()
+    s.loc.dynamic=elements(s.loc.static,True)
+  if abs((stas[0].loc.dynamic['theta']-initTheta))<0.05:
+#    if not trans:
+#      print str(orbCnt)+" "+str((stas[0].loc.dynamic['theta']))+' '+str((stas[0].loc.dynamic['rho']))
+    trans=True
+  elif trans and abs((stas[0].loc.dynamic['theta']-initTheta))>=0.05:
+    trans=False
+    orbCnt=orbCnt+1
 #print d
 #print d/LY2AU
