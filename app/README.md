@@ -5,4 +5,5 @@ For now, locator.py:
 - updates the cache if a locator was evicted
 - performs polar to cartesian conversions on a locator's orbital elements
 - based on cartesian coordinates, performs intra and inter solar system distance calculations
-- calculate realtime elements of a locator
+- calculates the realtime elements of a locator
+- calculates the closest approaches of two bodies orbiting the same parent

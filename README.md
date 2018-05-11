@@ -182,8 +182,7 @@ The physical characteristics of the sun:
 |spectral  |K        | Spectral class (see below)                         |
 |spin      |1497.87  | Rotation time (in seconds)                         |
 |seed      |67403928 | Star seed                                          |
-|fuel      |5        | *Reserved parameter*                               |
-|fuelQty   |8.1      | *Reserved parameter*                               |
+|irrOuterAU|25.67362 | Outer radius (in AU) of the radiation zone         |
 
 ##### Spectral classes
 

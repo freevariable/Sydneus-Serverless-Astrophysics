@@ -64,9 +64,6 @@ def getTheta(eccAno,ecc):
   trueAno=2.0*math.atan(aux)
   return trueAno
 
-def getRho(sma,ecc,eccAno):
-  return sma*(1.0-ecc*math.cos(eccAno))
-
 def getRho2(smi,theta,ecc):
   return smi/(math.sqrt(1-(ecc*ecc*math.cos(theta)*math.cos(theta))))
 
@@ -166,7 +163,6 @@ def elements(p,detailed):
   e['meanAno']=(p['ano']+deltaa)%TWOPI
   eccAno=getEccAno(e['meanAno'],p['ecc'])
   e['theta']=getTheta(eccAno,p['ecc'])
-#  e['rho']=getRho(p['smi'],p['ecc'],eccAno)
   e['rho']=getRho2(p['smi'],e['theta'],p['ecc'])
   if (e['theta']>p['per']):
     progress=e['theta']-p['per']
@@ -239,8 +235,6 @@ class locator:
     ns2=l2.name.split(":")
     depthMin=min(self.depth,l2.depth)
     depthDelta=abs(self.depth-l2.depth)
-#    print "depthMin: "+str(depthMin)
-#    print "depthDelta: "+str(depthDelta)
     if ((ns1[0]==ns2[0]) and (ns1[1]==ns2[1])):
 #      print "same sector"
       if (ns1[2]==ns2[2]):
@@ -338,15 +332,11 @@ class locator:
     res=dataPlane.get(self.name)
     if res is None:  #item was evicted from cache, we put it back
       dataPlane.set(self.name,json.dumps(self.static))
-#    res=self.static
     path=self.name
     path=path.replace(":","/")
     regex=r"/([a-zA-Z0-9\-]+)$"
     match=re.search(regex,path)
-#    print "MATCH"
-#    print match
     if (match is not None) and (len(match.group(1))>3):
-#      print "match found!! "+str(match.group(1))+" "+str(len(match.group(1)))
       self.dynamic=elements(self.static,True)
       return None
     if self.depth==PLDEPTH:
@@ -357,13 +347,10 @@ class locator:
       url=None  
     if (url is not None):
       try:
-#        print url
         rs=urllib2.urlopen(url)
         rss=rs.read()
         r1=json.loads(rss)
-#        print r1
         self.dynamic=r1
-#        print "==="
       except urllib2.HTTPError, e:
         print "error"
         return None      
@@ -373,7 +360,6 @@ class locator:
     global user
     self.name=name
     self.initParentAndDepth(name)
-#    print "my name: "+self.name+" my depth: "+str(self.depth)
     res=dataPlane.get(self.name)
     path=name
     path=path.replace(":","/")
@@ -392,21 +378,16 @@ class locator:
 #      print "no url..."
     if ((res is None) and (url is not None)):
       try:
-#        print url
         rs=urllib2.urlopen(url)
         rss=rs.read()
         r1=json.loads(rss)
-#        print r1
         self.static=r1
         dataPlane.set(self.name,rss)
-#        print "==="
       except urllib2.HTTPError, e:
         print "error"
         return None      
     elif res is not None:
-      #self.static=json.loads(res)
       self.static=json.loads(res)
-#      dataPlane.set(self.name,res)
 
 class sc:
   name=''
@@ -435,12 +416,7 @@ class sc:
     else:
       static['spin']=spin
     self.loc.static=static
-#   regex=r":([a-zA-Z0-9\-]+)$"
-#   match=re.search(regex,name)
-#   self.name=match.group(1)
-#   parentLocator=name.replace(match.group(0),"")
-#   print parentLocator
-   #self.loc=locator(self.name)
+
 init()
 
 def saves():
@@ -481,8 +457,6 @@ while True:
     t_inc=0.001
     if t_inc<oldtinc:
       print str(orbCnt)+" "+ff(dAU)
-#    time.sleep(1.0)
-#  time.sleep(slp)
   for s in stas:
 #    s.loc.refreshStack()
     s.loc.dynamic=elements(s.loc.static,True)
