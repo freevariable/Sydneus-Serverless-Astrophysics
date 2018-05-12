@@ -113,20 +113,23 @@ def prettyDeltaCompact(t1,t2):
   return pdc        
 
 def getEccAno(ano,ecc):
+  precision=1000000000000.0
   exitCondition=False
   eccAno=0.0
+  maxpre=0.01/precision
+  pre=0.5
   while exitCondition==False:
     aux=eccAno-ecc*math.sin(eccAno)
-    if (abs(aux-ano)<0.001):
-      exitCondition=True  
-#      print "aux:"+str(aux)
-#      print "ano:"+str(ano)
-#      print "eccAno:"+str(eccAno)
+    delta=abs(math.fmod(aux-ano,TWOPI))
+    while (delta<pre):
+      pre=pre/10.0
+    if (delta<=maxpre):
+      exitCondition=True
     if (eccAno>TWOPI):
       exitCondition=True
       eccAno=-100.0
     if exitCondition==False:
-      eccAno=eccAno+0.001
+      eccAno=eccAno+0.5*pre
   return eccAno
 
 def getTheta(eccAno,ecc):
@@ -135,9 +138,6 @@ def getTheta(eccAno,ecc):
   trueAno=2.0*math.atan(aux)
 #  print trueAno
   return trueAno
-
-#def getRho(sma,ecc,eccAno):
-#  return sma*(1.0-ecc*math.cos(eccAno)) 
 
 def getRho2(smi,theta,ecc):
   return smi/(math.sqrt(1-(ecc*ecc*math.cos(theta)*math.cos(theta))))

@@ -45,17 +45,23 @@ def ff(f):
   return "%.2f" % f
 
 def getEccAno(ano,ecc):
+  precision=1000000000000.0
   exitCondition=False
   eccAno=0.0
+  maxpre=0.01/precision
+  pre=0.5
   while exitCondition==False:
     aux=eccAno-ecc*math.sin(eccAno)
-    if (abs(aux-ano)<0.001):
+    delta=abs(math.fmod(aux-ano,TWOPI))
+    while (delta<pre):
+      pre=pre/10.0
+    if (delta<=maxpre):
       exitCondition=True
     if (eccAno>TWOPI):
       exitCondition=True
       eccAno=-100.0
     if exitCondition==False:
-      eccAno=eccAno+0.001
+      eccAno=eccAno+0.5*pre
   return eccAno
 
 def getTheta(eccAno,ecc):
@@ -460,11 +466,11 @@ while True:
   for s in stas:
 #    s.loc.refreshStack()
     s.loc.dynamic=elements(s.loc.static,True)
-  if abs((stas[0].loc.dynamic['theta']-initTheta))<0.05:
+  if abs(math.fmod(stas[0].loc.dynamic['theta']-initTheta,TWOPI))<0.05:
 #    if not trans:
 #      print str(orbCnt)+" "+str((stas[0].loc.dynamic['theta']))+' '+str((stas[0].loc.dynamic['rho']))
     trans=True
-  elif trans and abs((stas[0].loc.dynamic['theta']-initTheta))>=0.05:
+  elif trans and abs(math.fmod(stas[0].loc.dynamic['theta']-initTheta,TWOPI))>=0.05:
     trans=False
     orbCnt=orbCnt+1
 #print d
