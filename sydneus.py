@@ -542,7 +542,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       rss=rs.read()
       r1=json.loads(rss)
       if 'trig' in rss:
-        dataPlane.set(cacheLocator,r1)
+        dataPlane.set(cacheLocator,rss)
       else:
         flask.abort(404)
 #        return status.HTTP_404_NOT_FOUND    
@@ -606,7 +606,7 @@ def suGen(x,y,su,p):
       rss=rs.read()
       r1=json.loads(rss)
       if 'trig' in rss:
-        dataPlane.set(cacheLocator,r1)
+        dataPlane.set(cacheLocator,rss)
       else:
         flask.abort(404)
 #        return status.HTTP_404_NOT_FOUND
