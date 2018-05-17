@@ -347,9 +347,6 @@ def v1getMoElements(x,y,su,pl,mo,p):
     return json.dumps(elements(ap['mo'][0],True))
   else:
     moNum=int(mo)
-    print 'ap'
-    print ap
-    print ap['mo']
     for m in ap['mo']:
       if m['rank']==moNum:
         print m['period']
@@ -442,8 +439,6 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   else:
     cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
     res=dataPlane.get(cacheLocator)
-    print "res"
-    print res
   if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
