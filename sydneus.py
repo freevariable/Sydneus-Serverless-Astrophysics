@@ -309,7 +309,7 @@ def v1getPl(x,y,su,p):
     flask.abort(404)
   for aP in pls:
     aP['nbMo']=len(aP['mo'])
-    del aP['mo']
+    #del aP['mo']
   return json.dumps(pls)
 
 @app.route("/v1/list/mo/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
@@ -347,6 +347,8 @@ def v1getMoElements(x,y,su,pl,mo,p):
     return json.dumps(elements(ap['mo'][0],True))
   else:
     moNum=int(mo)
+    print 'ap'
+    print ap
     print ap['mo']
     for m in ap['mo']:
       if m['rank']==moNum:
@@ -440,6 +442,8 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
   else:
     cacheLocator=str(x)+':'+str(y)+':'+su+':'+pl
     res=dataPlane.get(cacheLocator)
+    print "res"
+    print res
   if (res is None):
     print 'MISS '+cacheLocator
     if throttle(p):
