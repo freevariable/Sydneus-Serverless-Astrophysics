@@ -190,6 +190,10 @@ def elements(p,pp,detailed):
       e['spinFormatted']='-'+e['spinFormatted']
     #e.update(p)
   if 'mSU' in pp:
+    print pp
+    print pp['mSU']
+    print " "
+    print e
     e['v']=REVSQRT1000*math.sqrt(G*pp['mSU']*SUKG/e['rho'])
   else:
     e['v']=REVSQRT1000*math.sqrt(G*pp['mEA']*EAKG/e['rho'])
@@ -565,7 +569,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
   else:
     print 'HIT '+cacheLocator
     #r1=json.loads(res)
-  return res
+  return json.loads(res)
 
 def getCraftAtSu(x,y,su,sc,p):
   global dataPlane
@@ -629,7 +633,7 @@ def suGen(x,y,su,p):
 #      return status.HTTP_404_NOT_FOUND
     else:
       print 'HIT '+cacheLocator
-    return res
+    return json.loads(res)
 
 def throttle(p):
   global controlPlane
