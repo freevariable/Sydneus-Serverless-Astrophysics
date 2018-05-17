@@ -156,8 +156,6 @@ def elements(p,detailed):
     deltar=0.0
   deltaa=TWOPI*deltap
   deltab=deltar-math.floor(deltar)
-#  print "DELTAR "+str(deltar)
-#  print "DELTAB "+str(deltab)
   e={}
   e['dayProgress']=p['dayProgressAtEpoch']+deltab
   if e['dayProgress']>1.0:
@@ -330,26 +328,26 @@ def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 def v1getPlElements(x,y,su,pl,p):
   ap=plGen(x,y,su,pl,p)
   if pl=='*':
-    print ap[0]
-    print ap[0]['period']
+#    print ap[0]
+#    print ap[0]['period']
     return json.dumps(elements(ap[0],True))
   else:
-    print ap
-    print ap['period']
+#    print ap
+#    print ap['period']
     return json.dumps(elements(ap,True))
 
 @app.route("/v1/get/mo/elements/<p>/<x>/<y>/<su>/<pl>/<mo>", methods=["GET"])
 def v1getMoElements(x,y,su,pl,mo,p):
   ap=plGen(x,y,su,pl,p)
   if mo=='*':
-    print ap['mo'][0]
-    print ap['mo'][0]['period']
+#    print ap['mo'][0]
+#    print ap['mo'][0]['period']
     return json.dumps(elements(ap['mo'][0],True))
   else:
     moNum=int(mo)
     for m in ap['mo']:
       if m['rank']==moNum:
-        print m['period']
+#        print m['period']
         return json.dumps(elements(m,True))
     abort(404)
 
@@ -507,11 +505,11 @@ def plGen(x,y,su,pl,p):
       if pl=='*':
         for aP in r1:
           cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(aP['rank'])
-          print cacheLocator
+          #print cacheLocator
           dataPlane.set(cacheLocator,json.dumps(aP))
       else:
         cacheLocator=str(x)+':'+str(y)+':'+su+':'+str(r1['rank'])
-        print cacheLocator
+        #print cacheLocator
         dataPlane.set(cacheLocator,json.dumps(r1))
       return r1
     except urllib2.HTTPError, e:
@@ -796,8 +794,6 @@ def discGen(xs,ys,su,r,p):
           s['dist']=float("{0:.5f}".format(d))
           r.append(s);
     if ((su_ly['xly']-xx)>(float(sectorwidth)-radius)):
-#      print "extend x+1"
-#      r2=sectorGen(xi+1,yi)
       for s in r2:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
@@ -807,8 +803,6 @@ def discGen(xs,ys,su,r,p):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)
     if ((su_ly['xly']-xx)<radius):
-#      print "extend x-1"
-#      r3=sectorGen(xi-1,yi)  
       for s in r3:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
@@ -818,8 +812,6 @@ def discGen(xs,ys,su,r,p):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)
     if ((su_ly['yly']-yy)>(sectorwidth-radius)):
-#      print "extend y+1"  
-#      r4=sectorGen(xi,yi+1)
       for s in r4:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
@@ -829,8 +821,6 @@ def discGen(xs,ys,su,r,p):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)    
     if ((su_ly['yly']-yy)<radius):
-#      print "extend y-1"  
-#      r5=sectorGen(xi,yi-1) 
       for s in r5:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
