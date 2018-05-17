@@ -37,6 +37,11 @@ SHORTTHRESH=10  #hits
 SHORTBAN=5  #seconds
 TWOPI=6.28318530718
 AU2KM=149597871.0
+REVSQRT1000=0.0000316227766  #  1/1000*math.sqrt(1000)
+SUKG=1.99855E30
+EAKG=5.97237E24
+PISQUARE=9.86960440109
+G=6.67408E-11
 
 def aGauss():
   return random.gauss(0.0,SIGM)
@@ -142,7 +147,7 @@ def getTheta(eccAno,ecc):
 def getRho2(smi,theta,ecc):
   return smi/(math.sqrt(1-(ecc*ecc*math.cos(theta)*math.cos(theta))))
 
-def elements(p,detailed):
+def elements(p,pp,detailed):
   t=time.time()-883612799.0
   if 'epoch' in p:
     epoch=p['epoch']  #satellites and vessels
@@ -184,6 +189,10 @@ def elements(p,detailed):
     if p['spin']<0.0:
       e['spinFormatted']='-'+e['spinFormatted']
     #e.update(p)
+  if 'mSU' in pp:
+    e['v']=REVSQRT1000*math.sqrt(G*pp['mSU']*SUKG/e['rho'])
+  else:
+    e['v']=REVSQRT1000*math.sqrt(G*pp['mEA']*EAKG/e['rho'])
   return e
 
 executor=ThreadPoolExecutor(max_workers=8)
@@ -194,6 +203,7 @@ def v1mapSu(pl,pmin,pmax,x,y,su):
   global controlPlane
   pMi=int(pmin)
   pMa=int(pmax)
+  pp=suGen(x,y,su,pl)
   pls=plGen(x,y,su,None,pl)
   p1={}
   p1['minSmaAU']=1E10
@@ -215,7 +225,7 @@ def v1mapSu(pl,pmin,pmax,x,y,su):
     span=p['smaAU']/p1['minSmaAU']
     e['span']=pMi+scalef*math.log10(span)
     e['rank']=p['rank']
-    el=elements(p,True)
+    el=elements(p,pp,True)
     pR['logScale'].append(e)     
   return json.dumps(pR)
 
@@ -256,7 +266,7 @@ def v1mapPl(pl,pmin,pmax,x,y,su,p):
     span=m['smaAU']/m1['minSmaAU']
     e['span']=pMi+scalef*math.log10(span)
     e['rank']=m['rank']
-    el=elements(m,True)
+    el=elements(m,pl,True)
     mR['logScale'].append(e)     
     eX=str(int(pMa/2+e['span']*0.5*(el['rho']*math.cos(el['theta'])/m['sma'])))
     eY=str(int(pMa/2+e['span']*0.5*(el['rho']*math.sin(el['theta'])/m['sma'])))
@@ -326,15 +336,16 @@ def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
 
 @app.route("/v1/get/pl/elements/<p>/<x>/<y>/<su>/<pl>", methods=["GET"])
 def v1getPlElements(x,y,su,pl,p):
+  pp=suGen(x,y,su,p)
   ap=plGen(x,y,su,pl,p)
   if pl=='*':
 #    print ap[0]
 #    print ap[0]['period']
-    return json.dumps(elements(ap[0],True))
+    return json.dumps(elements(ap[0],pp,True))
   else:
 #    print ap
 #    print ap['period']
-    return json.dumps(elements(ap,True))
+    return json.dumps(elements(ap,pp,True))
 
 @app.route("/v1/get/mo/elements/<p>/<x>/<y>/<su>/<pl>/<mo>", methods=["GET"])
 def v1getMoElements(x,y,su,pl,mo,p):
@@ -342,13 +353,13 @@ def v1getMoElements(x,y,su,pl,mo,p):
   if mo=='*':
 #    print ap['mo'][0]
 #    print ap['mo'][0]['period']
-    return json.dumps(elements(ap['mo'][0],True))
+    return json.dumps(elements(ap['mo'][0],ap,True))
   else:
     moNum=int(mo)
     for m in ap['mo']:
       if m['rank']==moNum:
 #        print m['period']
-        return json.dumps(elements(m,True))
+        return json.dumps(elements(m,ap,True))
     abort(404)
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])

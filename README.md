@@ -302,6 +302,7 @@ In Sydneus, **stars are static**.
 |meanAno        |4.436726   |Mean Anomaly (realtime) in radians                  |
 |rho            |11442...   |Polar distance from sun (realtime) in km            |
 |theta          |1.857695   |Polar angle (realtime) in radians                   |
+|v              |2.460833   |Orbital speed in km/s                               |
 
 
 #### Moons
@@ -325,6 +326,7 @@ In Sydneus, **stars are static**.
 |meanAno        |4.436726   |Mean Anomaly (realtime) in radians                  |
 |rho            |11442...   |Polar distance from sun (realtime) in km            |
 |theta          |1.857695   |Polar angle (realtime) in radians                   |
+|v              |2.460833   |Orbital speed in km/s                               |
 
 ## Examples
 
