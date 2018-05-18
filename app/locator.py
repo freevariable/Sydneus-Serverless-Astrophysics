@@ -233,6 +233,10 @@ class locator:
     d=math.sqrt((self.xAU - l2.xAU)**2 + (self.yAU - l2.yAU)**2)
     return d
 
+  def distance(self,l2):
+    d=math.sqrt((self.x - l2.x)**2 + (self.y - l2.y)**2)
+    return d
+
   def dist(self,l2):
     d=0.0
     interSector=False
@@ -257,12 +261,9 @@ class locator:
       ref='gx'
     self.cartesianize(ref)
     l2.cartesianize(ref)
-    if interSector:
-      d=d+self.distanceAU(l2)
-    if interSu:
-      d=d+self.distanceAU(l2)
-    else:
-      d=d+self.distanceAU(l2)
+    d=self.distance(l2)
+#    if interSector or interSu:
+#      d=self.distanceAU(l2)
     return d
 
   def initParentAndDepth(self,n):
@@ -279,6 +280,10 @@ class locator:
   def cartesianize(self,ref):
 #    print "cartesianizing "+self.name
     coords={}
+    self.x=0.0
+    self.y=0.0
+    self.xAU=0.0
+    self.yAU=0.0
     if self.dynamic is None:
       if self.static is not None:
         if 'xly' in self.static:
@@ -298,14 +303,14 @@ class locator:
       else:
         coords['x']=0.0
         coords['y']=0.0
-        return coords
+#        return coords
     elif 'rho' in self.dynamic:
       self.x=self.dynamic['rho']*math.cos(self.dynamic['theta'])
       self.y=self.dynamic['rho']*math.sin(self.dynamic['theta'])
     else:
       coords['x']=0.0
       coords['y']=0.0
-      return coords
+#      return coords
     if self.parent is not None:
       cs=self.parent.cartesianize(ref)   
       if 'x' in cs:
@@ -314,6 +319,8 @@ class locator:
       else:
         coords['x']=self.x
         coords['y']=self.y
+    self.x=coords['x']
+    self.y=coords['y']
     self.xAU=self.x/AU2KM
     self.yAU=self.y/AU2KM
     return coords
@@ -441,28 +448,29 @@ initTheta=stas[0].loc.dynamic['theta']
 orbCnt=-1
 trans=False
 cnt=0
+print "orbit     km       AU"
 
 while True:
   cnt=cnt+1
   d=stas[0].loc.dist(stas[1].loc)
-  dAU=d*AU2KM
+  dAU=d/AU2KM
 #  if cnt%100==0:
 #    print ff(dAU)+" "+str(orbCnt)+" "+str(t_inc)+" "+str((stas[0].loc.dynamic['theta']))
 #  print "Current distance between Harfang and Cromwell (km)"
 #  print str(ff(dAU))+"km, "+str(ff(stas[0].loc.dynamic['theta']))+","+str(ff(stas[1].loc.dynamic['theta']))+"  "+str(ff(stas[0].loc.dynamic['rho']))+","+str(ff(stas[1].loc.dynamic['rho']))
   oldtinc=t_inc
-  if dAU>100000.0:
+  if d>100000.0:
     t_inc=20.0
-  elif dAU>22000.0: 
+  elif d>22000.0: 
     t_inc=2.0   
-  elif dAU>3000.0: 
+  elif d>3000.0: 
     t_inc=0.1  
-  elif dAU>950.0: 
+  elif d>950.0: 
     t_inc=0.03   
   else:
     t_inc=0.001
     if t_inc<oldtinc:
-      print str(orbCnt)+" "+ff(dAU)
+      print str(orbCnt)+"        "+ff(d)+"km, "+ff(dAU)+"AU"
   for s in stas:
 #    s.loc.refreshStack()
     s.loc.dynamic=elements(s.loc.static,True)
