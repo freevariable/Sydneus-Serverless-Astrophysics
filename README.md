@@ -40,7 +40,7 @@ sudo apt-get install -y redis-server python curl python-redis python-flask
 Then: clone **Sydneus** from GitHub and... voila!
 
 ### Get your own access key
-You need to private message https://www.reddit.com/user/freevar to purchase an access key from **freevariable** to cover usage of our serverless backend in **pay per use** mode (so it's very, very cheap).
+Azure and Amazon charge their customers, me included, so you would need to private message https://www.reddit.com/user/freevar to purchase an access key from **freevariable** to cover usage of our serverless backend in **pay per use** mode (so it's very, very cheap starting less than a dollar a month).
 
 ### Configuration
 In your local clone directory, you need to create a file called localconf.py containing the following:
