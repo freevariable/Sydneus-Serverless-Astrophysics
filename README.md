@@ -367,7 +367,7 @@ curl 'http://127.0.0.1:5043/v1/get/su/player4067/400/29/RWh/91106006/3/1.423/8.0
 
 #### Planets (without Proof of Work)
 
-Example: generate the physical characteristics of the planet orbiting sun RWh. We can confirm that there is only one planet because the returned list has only one item. It is a small planet (radius 1487.5km) in the habitable zone of RWh, what's more it has an atmosphere but its gravity is low, similar to our good old Moon.
+Example: generate the physical characteristics of all planets orbiting sun RWh. We can confirm that there is only one planet because the returned list has only one item. It is a small planet (radius 1487.5km) in the habitable zone of RWh, what's more it has an atmosphere but its gravity is low, similar to our good old Moon.
 
 ```
 curl 'http://127.0.0.1:5043/v1/list/pl/player4067/400/29/RWh'
@@ -386,11 +386,15 @@ curl 'http://127.0.0.1:5043/v1/list/pl/player4067/400/29/RWh/1/91106006/3/1.423/
 
 #### Moons (without Proof of Work)
 
-To be completed.
+Example: generate the physical characteristics of all moons of the third planet orbiting sun 9w3. There are three jovian (J) moons ranked from 1 to 3
+
+curl 'http://127.0.0.1:5043/v1/list/mo/player4067/198/145/9w3/3'
+
+[{"mEA": 1.3922042044673781, "hasAtm": true, "smiAU": 0.00937585546978511, "ano": 3.2488277772276413, "period": 3047605.525047631, "rank": 1, "dayProgressAtEpoch": 0.23665009, "per": 2.4477264163362618, "roche": 56452.037479146515, "isLocked": false, "hill": 327403.42420291057, "smi": 1402608.0170835573, "inHZ": false, "sma": 1405978.2123213192, "cls": "J", "ecc": 0.069197885, "denEA": 0.0851810388, "radEA": 2.5347368107726855, "spin": 0.018242621667133474, "g": 2.123208588612319, "smaAU": 0.009398383833425806, "isIrr": false}, {"mEA": 0.1008820599462187, "hasAtm": true, "smiAU": 0.029347286498631237, "ano": 3.2488277772276413, "period": 16876963.99760388, "rank": 2, "dayProgressAtEpoch": 0.28218672, "per": 2.4477264163362618, "roche": 33001.31945826333, "isLocked": false, "hill": 427245.27185665147, "smi": 4390291.579822278, "inHZ": false, "sma": 4400840.599644272, "cls": "J", "ecc": 0.069197885, "denEA": 0.4263719076, "radEA": 0.6177621873100944, "spin": 0.05851302343592033, "g": 2.590161017377747, "smaAU": 0.029417802340544485, "isIrr": false}, {"mEA": 3.1024952303922166, "hasAtm": true, "smiAU": 0.09185969510817159, "ano": 3.2488277772276413, "period": 93460886.40260153, "rank": 3, "dayProgressAtEpoch": 0.89569314, "per": 2.4477264163362618, "roche": 51514.68357163969, "isLocked": false, "hill": 4189865.0970187383, "smi": 13742014.818891585, "inHZ": false, "sma": 13775034.217280721, "cls": "J", "ecc": 0.069197885, "denEA": 0.1120956618, "radEA": 3.0212521653480877, "spin": 0.253858158043709, "g": 3.3303711697373335, "smaAU": 0.09208041615298604, "isIrr": false}]
 
 #### Moons (with Proof of Work)
 
-To be completed.
+Same as above, but you would append the PoW obtained during sun 9w3 generation.
 
 #### Spacecrafts
 
@@ -411,7 +415,6 @@ curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/3/Cromwell'
 ##### Spacecraft in moon orbit
 
 ```
-
 curl 'http://127.0.0.1:5043/v1/get/spacecraft/player4067/400/29/RWh/3/2/Cromwell'
 ```
 
