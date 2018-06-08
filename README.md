@@ -22,6 +22,8 @@ What we will NOT do for you:
 - Persist cached data (filesystem, database)
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
+June 08, 2018: Fixed an issue with black holes habitable zone
+
 ## Getting started
 
 ### Recommended installation modes
@@ -456,4 +458,5 @@ Example: show all billing dots for user player4067
 ```
 curl 'http://127.0.0.1:5043/v1/list/billing/player4067'
 ["{'verb': 'plGen', 't': 1524054485.730217, 'result': 200}", "{'verb': 'plMap', 't': 1524054216.033575, 'result': 200}"]
+
 ```
