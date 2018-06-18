@@ -35,11 +35,25 @@ We encourage you to consider one of the following installation modes:
 - Azure Kubernetes AKS (for managed production)
 
 ### Installation (Ubuntu vanilla)
+### Python 2.7
 sudo apt-get update
 
 sudo apt-get install -y redis-server python curl python-redis python-flask
 
-Then: clone **Sydneus** from GitHub and... voila!
+clone **Sydneus** from GitHub
+
+run **sydneus.py** in daemon mode: python sydneus.py &
+
+### Python 3.5
+sudo apt-get update
+
+sudo apt-get install -y redis-server python3 curl python3-redis python3-pip
+
+sudo pip3 install flask
+
+clone **Sydneus** from GitHub
+
+run **sydneus3.py** in daemon mode: python3 sydneus3.py &
 
 ### Get your own access key
 Azure and Amazon charge their customers, me included, so you would need to private message https://www.reddit.com/user/freevar to purchase an access key from **freevariable** to cover usage of our serverless backend in **pay per use** mode (so it's very, very cheap starting less than a dollar a month).
