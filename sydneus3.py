@@ -554,7 +554,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
       rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
-      if 'trig' in rss:
+      if 'trig' in rss.decode():
         dataPlane.set(cacheLocator,rss)
       else:
         flask.abort(404)
@@ -618,7 +618,7 @@ def suGen(x,y,su,p):
       rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
-      if 'trig' in rss:
+      if 'trig' in rss.decode():
         dataPlane.set(cacheLocator,rss)
       else:
         flask.abort(404)
