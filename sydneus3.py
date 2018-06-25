@@ -189,15 +189,16 @@ def elements(p,pp,detailed):
     e['spinFormatted']=prettyDeltaCompact(0.0,abs(p['spin']*86400.0))
     if p['spin']<0.0:
       e['spinFormatted']='-'+e['spinFormatted']
-    #e.update(p)
-  if 'mSU' in pp:
-#    print pp
-#    print pp['mSU']
-#    print " "
-#    print e
-    e['v']=REVSQRT1000*math.sqrt(G*pp['mSU']*SUKG/e['rho'])
+  if 'sma' in p:
+    ss=p['sma']
   else:
-    e['v']=REVSQRT1000*math.sqrt(G*pp['mEA']*EAKG/e['rho'])
+    ss=p['smaAU']*AU2KM
+  if 'mSU' in pp:
+    #e['v']=REVSQRT1000*math.sqrt(G*pp['mSU']*SUKG/e['rho'])
+    e['v']=REVSQRT1000*math.sqrt(G*pp['mSU']*SUKG*((2.0/e['rho'])-(1.0/ss)))
+  else:
+    #e['v']=REVSQRT1000*math.sqrt(G*pp['mEA']*EAKG/e['rho'])
+    e['v']=REVSQRT1000*math.sqrt(G*pp['mEA']*EAKG*((2.0/e['rho'])-(1.0/ss)))
   return e
 
 executor=ThreadPoolExecutor(max_workers=8)

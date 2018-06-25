@@ -23,6 +23,7 @@ What we will NOT do for you:
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
 June 08, 2018: Fixed an issue with black holes habitable zone
+June 25, 2018: Increased precision of orbital speed
 
 ## Getting started
 
