@@ -467,7 +467,9 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
       rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
-      if len(rss)>5:
+      if (len(rss.decode())==2): # []
+        return r1
+      if len(rss.decode())>5:
         dataPlane.set(cacheLocator,rss)
       else:
         #return status.HTTP_404_NOT_FOUND
@@ -508,7 +510,9 @@ def plGen(x,y,su,pl,p):
       rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
-      if len(rss)>5:
+      if len(rss.decode())==2:  # []
+        return r1
+      if len(rss.decode())>5:
         if pl=='*':
           dataPlane.set(cacheLocator,rss)
           for aP in r1:
@@ -808,42 +812,52 @@ def discGen(xs,ys,su,r,p):
       if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
         s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
         s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
+#        print(s,end='')
+#        print(' ',end='')
+#        s['xly']=s['xly']-su_ly['xly']
+#        s['yly']=s['yly']-su_ly['yly']
         d=distance(s,p0)
         if (d<=radius):
           s['dist']=float("{0:.5f}".format(d))
-          r.append(s);
-    if ((su_ly['xly']-xx)>(float(sectorwidth)-radius)):
+#          print(s,end='')
+          r.append(s)
+#        print(' ')
+    if ((su_ly['xly']+radius)>(float(sectorwidth))):
+      overflow=su_ly['xly']+radius-float(sectorwidth)
       for s in r2:
-        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+        if ((abs(s['xly'])<=overflow) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.5f}".format(float(sectorwidth)+s['xly']-su_ly['xly']))
           s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)
-    if ((su_ly['xly']-xx)<radius):
+    if ((su_ly['xly']-radius)<0.0):
+      underflow=float(sectorwidth)+su_ly['xly']-radius
       for s in r3:
-        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
+        if ((abs(s['xly'])>=underflow) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.5f}".format(float(sectorwidth)-s['xly']+su_ly['xly']))
           s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)
-    if ((su_ly['yly']-yy)>(sectorwidth-radius)):
+    if ((su_ly['yly']+radius)>(float(sectorwidth))):
+      overflow=su_ly['yly']+radius-float(sectorwidth)
       for s in r4:
-        if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
+        if ((abs(s['yly'])<=overflow) and (abs(s['xly']-su_ly['xly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
+          s['yly']=float("{0:.5f}".format(float(sectorwidth)+s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
             s['dist']=float("{0:.5f}".format(d))
             r.append(s)    
-    if ((su_ly['yly']-yy)<radius):
+    if ((su_ly['yly']-radius)<0.0):
+      underflow=float(sectorwidth)+su_ly['yly']-radius
       for s in r5:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
+          s['yly']=float("{0:.5f}".format(float(sectorwidth)-s['yly']+su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
             s['dist']=float("{0:.5f}".format(d))
