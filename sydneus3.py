@@ -835,8 +835,8 @@ def discGen(xs,ys,su,r,p):
     if ((su_ly['xly']-radius)<0.0):
       underflow=float(sectorwidth)+su_ly['xly']-radius
       for s in r3:
-        if ((abs(s['xly'])>=underflow) and (abs(s['yly']-su_ly['yly'])<=radius)):
-          s['xly']=float("{0:.5f}".format(float(sectorwidth)-s['xly']+su_ly['xly']))
+        if ((s['xly']>=underflow) and (abs(s['yly']-su_ly['yly'])<=radius)):
+          s['xly']=float("{0:.5f}".format(-float(sectorwidth)+s['xly']-su_ly['xly']))
           s['yly']=float("{0:.5f}".format(s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
@@ -857,7 +857,7 @@ def discGen(xs,ys,su,r,p):
       for s in r5:
         if ((abs(s['xly']-su_ly['xly'])<=radius) and (abs(s['yly']-su_ly['yly'])<=radius)):
           s['xly']=float("{0:.5f}".format(s['xly']-su_ly['xly']))
-          s['yly']=float("{0:.5f}".format(float(sectorwidth)-s['yly']+su_ly['yly']))        
+          s['yly']=float("{0:.5f}".format(-float(sectorwidth)+s['yly']-su_ly['yly']))        
           d=distance(s,p0)
           if (d<=radius):
             s['dist']=float("{0:.5f}".format(d))
