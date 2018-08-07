@@ -320,7 +320,8 @@ def v1getSunWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
 def v1getPl(x,y,su,p):
   pls=plGen(x,y,su,'*',p)
   if len(pls)<1: 
-    flask.abort(404)
+#    flask.abort(404)
+    return json.dumps(pls)
   for aP in pls:
     aP['nbMo']=len(aP['mo'])
     #del aP['mo']
@@ -334,7 +335,7 @@ def v1getMo(x,y,su,pl,p):
   for aP in pls:
     if aP['rank']==int(pl):
       return json.dumps(aP['mo'])
-  abort(404)
+  flask.abort(404)
 
 @app.route("/v1/list/pl/<p>/<x>/<y>/<su>/<suseed>/<sucls>/<sux>/<suy>/<proof>", methods=["GET"])
 def v1getPlWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
@@ -366,7 +367,7 @@ def v1getMoElements(x,y,su,pl,mo,p):
       if m['rank']==moNum:
 #        print m['period']
         return json.dumps(elements(m,ap,True))
-    abort(404)
+    flask.abort(404)
 
 @app.route("/v1/list/disc/<p>/<x>/<y>/<su>/<r>", methods=["GET"])
 def v1getDisc(x,y,su,r,p):

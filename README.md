@@ -12,8 +12,8 @@ A few useful notes:
 - Some long running tasks on the serverless side can be shortened with **proof of work** (PoW, see below)
 
 We have two programs:
-- **sydneus.py** is the front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
-- **app/locator.py** is an optional tool that leverages sydneus.py to help perform operations on celestial bodies: please refer to the **app/** README for more information.
+- **sydneus3.py** is the front-end REST API to the back-end serverless generator hosted in *Azure function* and *Amazon lambda*.
+- **app/locator.py** is an optional tool that leverages sydneus3.py to help perform operations on celestial bodies: please refer to the **app/** README for more information.
 
 What we will NOT do for you:
 - Authenticate your users
@@ -22,6 +22,7 @@ What we will NOT do for you:
 - Persist cached data (filesystem, database)
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
+August 07, 2018: Fixed an issue with HTTP status codes
 June 08, 2018: Fixed an issue with black holes habitable zone
 June 25, 2018: Increased precision of orbital speed
 
@@ -36,14 +37,6 @@ We encourage you to consider one of the following installation modes:
 - Azure Kubernetes AKS (for managed production)
 
 ### Installation (Ubuntu vanilla)
-### Python 2.7
-sudo apt-get update
-
-sudo apt-get install -y redis-server python curl python-redis python-flask
-
-clone **Sydneus** from GitHub
-
-run **sydneus.py** in daemon mode: python sydneus.py &
 
 ### Python 3.5
 sudo apt-get update
@@ -70,7 +63,7 @@ SEED='a random string of your liking that is unique for each galaxy'
 By default, the server will start on localhost port 5043. You can set the port with option --port. Although you can run it standalone for development purposes, in production you are strongly advised to manage your front-end with UWSGI (ubuntu packages: uwsgi,uwsgi-core,uwsgi-emperor,uwsgi-plugin-python):
 
 ```
-./sydneus.py --port=5043 &
+./sydneus3.py --port=5043 &
 * Running on http://127.0.0.1:5043/ (Press CTRL+C to quit)
 ```
 
