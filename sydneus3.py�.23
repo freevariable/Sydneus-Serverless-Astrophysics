@@ -16,11 +16,9 @@
 import redis,random,math,sys,uuid,urllib.request,urllib.error
 import time,datetime,getopt,flask,json
 from concurrent.futures import ThreadPoolExecutor
+#import cPickle as pickle
 import pickle
 from localconf import *
-from socket import timeout
-
-UTO=4
 
 class setEncoder(json.JSONEncoder):
   def default(self,obj):
@@ -465,7 +463,7 @@ def plGenWithPoW(x,y,su,pl,suseed,sucls,sux,suy,proof,p):
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof+'&seed='+SEED
 #    print("URL="+url)
     try:
-      rs=urllib.request.urlopen(url,timeout=UTO)
+      rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
       if (len(rss.decode())==2): # []
@@ -508,7 +506,7 @@ def plGen(x,y,su,pl,p):
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&pl='+pl+'&seed='+SEED
     #print("URL="+url)
     try:
-      rs=urllib.request.urlopen(url,timeout=UTO)
+      rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
       if len(rss.decode())==2:  # []
@@ -558,7 +556,7 @@ def suGenWithPoW(x,y,su,suseed,sucls,sux,suy,proof,p):
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED+'&suseed='+suseed+'&cls='+sucls+'&xly='+sux+'&yly='+suy+'&pow='+proof
 #    print "URL="+url
     try:
-      rs=urllib.request.urlopen(url,timeout=UTO)
+      rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
       if 'trig' in rss.decode():
@@ -622,7 +620,7 @@ def suGen(x,y,su,p):
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&su='+su+'&seed='+SEED
 #    print "URL="+url
     try:
-      rs=urllib.request.urlopen(url,timeout=UTO)
+      rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
       if 'trig' in rss.decode():
@@ -646,6 +644,7 @@ def suGen(x,y,su,p):
 
 def throttle(p):
   global controlPlane
+  return False
   throttled=False
   thr=controlPlane.get(p+':isThrottled?')
   if thr is not None:
@@ -683,7 +682,7 @@ def sectorGen(x,y,p):
     url=ENDPOINT+'/api/'+verb+'?'+CODE+'&x='+str(x)+'&y='+str(y)+'&seed='+SEED
     #print("URL="+url)
     try:
-      rs=urllib.request.urlopen(url,timeout=UTO)
+      rs=urllib.request.urlopen(url)
       rss=rs.read()
       r1=json.loads(rss.decode())
       dataPlane.set(cacheLocator,rss)

@@ -22,6 +22,7 @@ What we will NOT do for you:
 - Persist cached data (filesystem, database)
 - Handle security (this API is not supposed to accessible from the Internet, but to be called from a web server or from an application server)
 
+August 13, 2018: Added URL timeout
 August 07, 2018: Fixed an issue with HTTP status codes
 June 08, 2018: Fixed an issue with black holes habitable zone
 June 25, 2018: Increased precision of orbital speed
@@ -47,7 +48,7 @@ sudo pip3 install flask
 
 clone **Sydneus** from GitHub
 
-run **sydneus3.py** in daemon mode: python3 sydneus3.py &
+run **sydneus3.py** in daemon mode with the provided script: start3.sh
 
 ### Get your own access key
 Azure and Amazon charge their customers, me included, so you would need to private message https://www.reddit.com/user/freevar to purchase an access key from **freevariable** to cover usage of our serverless backend in **pay per use** mode (so it's very, very cheap starting less than a dollar a month).
